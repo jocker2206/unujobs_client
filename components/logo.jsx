@@ -1,0 +1,14 @@
+import React, { Component } from 'react';
+
+export default class Logo extends Component
+{
+
+    render() {
+        return (
+            <h3>
+                UNU
+            </h3>
+        );
+    }
+
+}
