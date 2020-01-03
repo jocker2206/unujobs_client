@@ -15,7 +15,6 @@ export default class Afectacion extends Component {
         sindicatos: [],
         cargos: [],
         categorias: [],
-        edit: false,
     };
 
 
@@ -32,8 +31,6 @@ export default class Afectacion extends Component {
 
     componentWillUpdate(nextProps, nextState) {
         if ( nextState.history.afp_id != this.state.history.afp_id) this.getTypeAFP(nextState);
-        if ( nextState.edit != this.state.edit && !nextState.edit ) this.setting(nextProps, nextState);
-        if ( nextState.edit != this.state.edit && nextState.edit ) this.setEdit(nextState);
     }
 
 
@@ -42,20 +39,11 @@ export default class Afectacion extends Component {
     }
 
 
-    setting = async (nextProps, nextState) => {
+    setting = async (nextProps) => {
         this.setState({ 
             history: nextProps.historial ? nextProps.historial : {}, 
             work: nextProps.historial.work ? nextProps.historial.work : {} 
         });
-        // actualizar la edicion
-        this.setEdit(nextState);
-    }
-
-
-
-    setEdit = (state) => {
-        let { setEdit } = this.props;
-        if (typeof setEdit == 'function') setEdit(state.edit);
     }
 
 
@@ -128,12 +116,12 @@ export default class Afectacion extends Component {
                 <div className="col-md-3">
                     <div className="form-group">
                         <b>AFP</b>
-                        {this.state.edit 
+                        {this.props.edit 
                             ?   <select name="afp_id" 
                                     className="form-control"
                                     value={history.afp_id}
                                     onChange={this.handleInput}
-                                    disabled={!this.state.edit}
+                                    disabled={!this.props.edit}
                                 >
                                     <option value="">Select. AFP</option>
                                     {afps.map(obj => 
@@ -159,18 +147,18 @@ export default class Afectacion extends Component {
                             name="fecha_de_ingreso"
                             value={history.fecha_de_ingreso}
                             onChange={this.handleInput}
-                            disabled={!this.state.edit}
+                            disabled={!this.props.edit}
                         />
                     </div>
 
                     <div className="form-group">
                         <b>Meta</b>
-                        { this.state.edit
+                        { this.props.edit
                             ?   <select name="meta_id" 
                                     className="form-control"
                                     value={history.meta_id}
                                     onChange={this.handleInput}
-                                    disabled={!this.state.edit}
+                                    disabled={!this.props.edit}
                                 >
                                     <option value="">Select. Meta</option>
                                     {metas.map(obj => 
@@ -204,12 +192,12 @@ export default class Afectacion extends Component {
                 <div className="col-md-3">
                     <div className="form-group">
                         <b>Tipo de AFP</b>
-                        { this.state.edit
+                        { this.props.edit
                             ?   <select name="type_afp_id" 
                                     className="form-control"
                                     value={history.type_afp_id}
                                     onChange={this.handleInput}
-                                    disabled={!this.state.edit}
+                                    disabled={!this.props.edit}
                                 >
                                     <option value="">Select. Tipo de AFP</option>
                                     {type_afps.map(obj => 
@@ -236,7 +224,7 @@ export default class Afectacion extends Component {
                             name="fecha_de_cese"
                             value={history.fecha_de_cese}
                             onChange={this.handleInput}
-                            disabled={!this.state.edit}
+                            disabled={!this.props.edit}
                         />
                     </div>
 
@@ -247,18 +235,18 @@ export default class Afectacion extends Component {
                             name="escuela"
                             value={history.escuela}
                             onChange={this.handleInput}
-                            disabled={!this.state.edit}
+                            disabled={!this.props.edit}
                         />
                     </div>
 
                     <div className="form-group">
                         <b>Cargo</b>
-                        { this.state.edit 
+                        { this.props.edit 
                             ?   <select name="cargo_id" 
                                     className="form-control"
                                     value={history.cargo_id}
                                     onChange={this.handleInput}
-                                    disabled={!this.state.edit}
+                                    disabled={!this.props.edit}
                                 >
                                     <option value="">Select. Cargo</option>
                                     {cargos.map(obj => 
@@ -288,7 +276,7 @@ export default class Afectacion extends Component {
                             min="10"
                             value={history.numero_de_cussp}
                             onChange={this.handleInput}
-                            disabled={!this.state.edit}
+                            disabled={!this.props.edit}
                         />
                     </div>
 
@@ -299,7 +287,7 @@ export default class Afectacion extends Component {
                             className="form-control"
                             value={history.numero_de_essalud}
                             onChange={this.handleInput}
-                            disabled={!this.state.edit}
+                            disabled={!this.props.edit}
                         />
                     </div>
 
@@ -310,18 +298,18 @@ export default class Afectacion extends Component {
                             className="form-control"
                             value={history.perfil}
                             onChange={this.handleInput}
-                            disabled={!this.state.edit}
+                            disabled={!this.props.edit}
                         />
                     </div>
 
                     <div className="form-group">
                         <b>Categoría</b>
-                        { this.state.edit 
+                        { this.props.edit 
                             ?   <select name="categoria_id" 
                                     className="form-control"
                                     value={history.categoria_id}
                                     onChange={this.handleInput}
-                                    disabled={!this.state.edit}
+                                    disabled={!this.props.edit}
                                 >
                                     <option value="">Select. Categoría</option>
                                     {categorias.map(obj => 
@@ -350,7 +338,7 @@ export default class Afectacion extends Component {
                             name="fecha_de_afiliacion"
                             value={history.fecha_de_afiliacion}
                             onChange={this.handleInput}
-                            disabled={!this.state.edit}
+                            disabled={!this.props.edit}
                         />
                     </div>
 
@@ -360,7 +348,7 @@ export default class Afectacion extends Component {
                             className="form-control"
                             value={history.sindicato_id}
                             onChange={this.handleInput}
-                            disabled={!this.state.edit}
+                            disabled={!this.props.edit}
                         >
                             <option value="">Select. Sindicato</option>
                             {sindicatos.map(obj => 
@@ -380,25 +368,20 @@ export default class Afectacion extends Component {
                             className="form-control"
                             value={history.plaza}
                             onChange={this.handleInput}
-                            disabled={!this.state.edit}
-                        />
-                    </div>
-
-                    <div className="form-group">
-                        <BtnEditar edit={this.state.edit}
-                            onClick={(e) => this.setState(state => ({ edit: !state.edit }))}
+                            disabled={!this.props.edit}
                         />
                     </div>
                 </div>
 
                 <div className="col-md-9">
+                    <b>Observación</b>
                     <textarea name="observacion" 
                         className="form-control" 
                         style={{ width: "100%" }}
                         rows="8"
                         value={history.observacion}
                         onChange={this.handleInput}
-                        disabled={!this.state.edit}
+                        disabled={!this.props.edit}
                     />
                 </div>
             </form>

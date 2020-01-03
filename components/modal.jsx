@@ -17,7 +17,7 @@ export default class Modal extends Component {
   }
 
   componentWillReceiveProps(Newprops) {
-    this.setState({ isShow: Newprops.show });
+    if (Newprops.show != this.props.show) this.setState({ isShow: Newprops.show });
   }
 
   close(e) {

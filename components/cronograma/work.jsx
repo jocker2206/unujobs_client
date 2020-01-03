@@ -9,7 +9,6 @@ export default class Work extends Component {
         bancos: [],
         history: {},
         work: {},
-        edit: false,
     };
 
 
@@ -25,26 +24,11 @@ export default class Work extends Component {
         }
     }
 
-
-    componentWillUpdate(nextProps, nextState) {
-        if (nextState.edit != this.state.edit && !nextState.edit) this.setting(nextProps);
-        if (nextState.edit != this.state.edit && nextState.edit) this.setEdit(nextState);
-    }
-
-
     setting = async (nextProps) => {
         await this.setState({ 
             history: nextProps.historial ? nextProps.historial : {}, 
             work: nextProps.historial.work ? nextProps.historial.work : {} 
         });
-        // actualizar la edicion
-        this.setEdit(this.state);
-    }
-
-
-    setEdit = (state) => {
-        let { setEdit } = this.props;
-        if (typeof setEdit == 'function') setEdit(state.edit);
     }
 
 
@@ -97,14 +81,17 @@ export default class Work extends Component {
                                 className="form-control" 
                                 name="phone"
                                 value={work.phone}
-                                disabled={!this.state.edit}
+                                disabled={!this.props.edit}
                                 onChange={this.handleInput}
                             />
                         </div>
 
                         <div className="form-group">
                             <b>¿Sincronizar datos con RENIEC?</b>
-                            <button className="btn btn-success btn-block">
+                            <button 
+                                className="btn btn-success btn-block"
+                                disabled={!this.props.edit}
+                            >
                                 <i className="fas fa-sync"></i> Sincronizar datos con RENIEC
                             </button>
                         </div>
@@ -139,16 +126,10 @@ export default class Work extends Component {
                                 className="form-control" 
                                 name="email"
                                 value={work.email}
-                                disabled={!this.state.edit}
+                                disabled={!this.props.edit}
                                 onChange={this.handleInput}
                             />
-                        </div>      
-
-                        <div className="form-group">
-                            <BtnEditar edit={this.state.edit}
-                                onClick={(e) => this.setState(state => ({ edit: !state.edit }))}
-                            />    
-                        </div>          
+                        </div>              
                     </div>
 
                     <div className="col-md-3">
@@ -168,7 +149,7 @@ export default class Work extends Component {
                                 className="form-control" 
                                 name="direccion"
                                 value={work.direccion}
-                                disabled={!this.state.edit}
+                                disabled={!this.props.edit}
                                 onChange={this.handleInput}
                             />
                         </div>
@@ -178,7 +159,7 @@ export default class Work extends Component {
                             <select name="banco_id" 
                                 value={work.banco_id} 
                                 className="form-control"
-                                disabled={!this.state.edit}
+                                disabled={!this.props.edit}
                                 onChange={this.handleInput}
                             >
                                 <option value="">Select. Banco</option>
@@ -210,7 +191,7 @@ export default class Work extends Component {
                                 className="form-control" 
                                 name="profesion"
                                 value={work.profesion}
-                                disabled={!this.state.edit}
+                                disabled={!this.props.edit}
                                 onChange={this.handleInput}
                             />
                         </div>
@@ -221,7 +202,7 @@ export default class Work extends Component {
                                 className="form-control"
                                 name="numero_de_cuenta"
                                 value={work.numero_de_cuenta}
-                                disabled={!this.state.edit}
+                                disabled={!this.props.edit}
                                 onChange={this.handleInput}
                             />
                         </div>

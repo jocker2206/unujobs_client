@@ -36723,3 +36723,7 @@ textarea.gx-chat-textarea {
 .border-dark {
   border-color: #222230;
 }
+
+.btn-danger {
+  background: #ef5350!important;
+}
