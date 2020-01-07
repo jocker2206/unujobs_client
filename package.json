@@ -22,6 +22,7 @@
     "react": "^16.12.0",
     "react-bootstrap": "^1.0.0-beta.16",
     "react-csv": "^1.1.2",
+    "react-csv-reader": "^2.0.2",
     "react-dom": "^16.12.0",
     "sweetalert2": "^9.5.4"
   }

@@ -57,101 +57,98 @@ export default class Login extends Component
         if (page == false) return null;
 
         return (
-            <div className="gx-app-login-wrap">
-                <div className="gx-app-login-container" style={{ marginTop: "5em" }}>
-                    <div className="gx-app-login-main-content">
-                        <div className="gx-app-logo-content">
-                            <div className="gx-app-logo-content-bg">
-                                <img src="/static/img/cover.jpg" alt="Cover" style={{ objectFit: "cover" }}/>
-                            </div>
+            <div className="auth">
+                <header
+                    id="auth-header"
+                    className="auth-header bg-success"
+                    style={{ paddingTop: "3em" }}
+                >
+    
+                    <img src="/static/img/logo-unu.png"
+                        alt="logo"
+                        style={{ width: "150px", borderRadius: "0.5em" }}
+                    />
+                    
+                    <h4>UNU - SRH</h4>
 
-                            <div className="gx-app-logo-wid">
-                                <h1><span>Iniciar Sesión</span></h1>
-                                <p><span>Sistema de Gestión de Planilla</span></p>
-                                <p><span>Entrar!!!</span></p>
-                            </div>
+                    <h1>
+                        <span className="sr-only">Iniciar Sesión</span>
+                    </h1>
+                    <p>
+                        {" "}
+                    </p>
+                </header>
 
-                            <div className="gx-app-logo">
-                                <img alt="example" src="/static/img/logo-unu.png" style={{ width: "75px", borderRadius: "0.4em" }}/>
-                            </div>
+                <form
+                    className="auth-form"
+                    onSubmit={this.handleSubmit}
+                >
+                    <div className="form-group">
+                        <div className="form-label-group">
+                        <input
+                            type="text"
+                            id="inputUser"
+                            className={`form-control`}
+                            placeholder="Correo Electrónico"
+                            name="email"
+                            onChange={this.handleInput}
+                            value={email}
+                        />{" "}
+                            <label htmlFor="inputUser">Correo</label>
                         </div>
-                        
-                        <div className="gx-app-login-content">
-                            <form className="ant-form ant-form-horizontal gx-signin-form gx-form-row0" onSubmit={this.handleSubmit}>
-                                <div className="ant-row ant-form-item">
-                                    <div className="ant-col ant-form-item-control-wrapper">
-                                        <div className={`ant-form-item-control has-${errors.email &&  errors.email[0] ? 'error' : 'success'}`}>
-                                            <span className="ant-form-item-children">
-                                                <input placeholder="Correo Electrónico" 
-                                                    name="email" 
-                                                    type="text" 
-                                                    className="ant-input has-error"
-                                                    value={email}
-                                                    onChange={this.handleInput}
-                                                    disabled={loading}
-                                                />
-                                                <small className="ant-form-explain">{errors.email && errors.email[0]}</small>
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div className="ant-row ant-form-item">
-                                    <div className="ant-col ant-form-item-control-wrapper">
-                                        <div className={`ant-form-item-control has-${errors.password &&  errors.password[0] ? 'error' : 'success'}`}>
-                                            <span className="ant-form-item-children">
-                                                <input type="password" 
-                                                    placeholder="Contraseña" 
-                                                    name="password"
-                                                    className="ant-input" 
-                                                    value={password}
-                                                    onChange={this.handleInput}
-                                                    disabled={loading}
-                                                />
-                                                <small className="ant-form-explain">{errors.password && errors.password[0]}</small>
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div className="ant-row ant-form-item">
-                                    <div className="ant-col ant-form-item-control-wrapper">
-                                        <div className="ant-form-item-control has-success">
-                                            
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div className="ant-row ant-form-item">
-                                    <div className="ant-col ant-form-item-control-wrapper">
-                                        <div className="ant-form-item-control">
-                                            <span className="ant-form-item-children">
-                                                <button type="submit" 
-                                                    className="ant-btn gx-mb-0 ant-btn-primary"
-                                                    disabled={loading || !email || !password}
-                                                >
-                                                    <span>{loading ? 'Cargando...' : 'Entrar'}</span>
-                                                </button>
-                                                <span>
-                                                    <span>o </span>
-                                                </span> 
-                                                <a href="/signup"><span>Recuperar Cuenta</span></a>
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div className="gx-flex-row gx-justify-content-between">
-                                    <span></span>
-                                    <ul className="gx-social-link">
-                                        <br/><br/>
-                                    </ul>
-                                </div>
-                                                
-                            </form>
+                        <b class="text-danger">{errors.email && errors.email[0]}</b>
+                    </div>
+
+                    <div className="form-group">
+                        <div className="form-label-group">
+                        <input
+                            type="password"
+                            id="inputPassword"
+                            className={`form-control`}
+                            placeholder="Contraseña"
+                            name="password"
+                            onChange={this.handleInput}
+                            value={password}
+                        />{" "}
+                            <label htmlFor="inputPassword">Contraseña</label>
+                        </div>
+                        <b class="text-danger">{errors.password && errors.password[0]}</b>
+                    </div>
+
+                    <div className="form-group">
+                        <button
+                            disabled={loading}
+                            className={`btn btn-lg btn-success btn-block`}
+                            type="submit"
+                        >
+                            {loading ? "Verificando...." : "Iniciar Sesión"}
+                            <i className="icon-circle-right2 ml-2"></i>
+                        </button>
+                    </div>
+
+                    <div className="form-group text-center">
+                        <div className="custom-control custom-control-inline custom-checkbox">
+                        <input
+                            type="checkbox"
+                            className="custom-control-input"
+                            id="remember-me"
+                        />
                         </div>
                     </div>
-                </div>
+
+                    <div className="text-center pt-0">
+                        <a href="/recovery_password" className="link">
+                        Recuperar cuenta
+                        </a>
+                    </div>
+
+                </form>
+                
+                <footer className="auth-footer">
+                    {" "}
+                    © 2019 Todos Los Derechos Reservados <a href="#">Privacidad</a> y
+                    <a href="#">Terminos</a>
+                </footer>
             </div>
         )
     }

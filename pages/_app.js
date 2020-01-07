@@ -37,24 +37,9 @@ class MyApp extends App {
             <link rel="stylesheet" href="/static/css/buttons.bootstrap4.min.css"></link>
             <link rel="stylesheet" href="/static/css/flatpickr.min.css" />
             <link rel="stylesheet" href="/static/css/theme.min.css" data-skin="default" />
-
-            { this.state.logging 
-              ? <Fragment>
-                  <link rel="stylesheet" href="/static/css/theme-dark.min.css" data-skin="dark" disabled={true} />
-                  <link rel="stylesheet" href="/static/css/custom.css" />
-                  <link rel="stylesheet" href="/static/css/skull.css" />
-                  <script src="/static/js/pace.min.js"></script>
-                </Fragment>
-              : <Fragment>
-                   <link href="https://fonts.googleapis.com/css?family=Roboto:400,300,100,500,600,700,900" rel="stylesheet" type="text/css" />
-                    <link rel="stylesheet" href="/static/css/export.css"/>
-                    <link rel="stylesheet" href="/static/css/draft.css"/>
-                    <link rel="stylesheet" href="/static/css/main.css"/>
-                    <link rel="stylesheet" href="/static/css/chunk.css"/>
-                    <link rel="stylesheet" href="/static/css/chunk-main.css"/>
-                </Fragment>
-            }
-
+            <link rel="stylesheet" href="/static/css/theme-dark.min.css" data-skin="dark" disabled={true} />
+            <link rel="stylesheet" href="/static/css/custom.css" />
+            <link rel="stylesheet" href="/static/css/skull.css" />
         </Head>
 
 
