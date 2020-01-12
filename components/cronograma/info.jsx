@@ -274,6 +274,7 @@ export default class Info extends Component {
             page: 1, 
             afp_id: "",
             like: "",
+            historial: {},
             exports: {
                 click: 0,
                 loading: false,
