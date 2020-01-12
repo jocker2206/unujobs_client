@@ -57,7 +57,7 @@ class Navbar extends Component {
 
     return (
       <Fragment>
-        <header className="app-header app-header-dark">
+        <header className="app-header app-header-dark bg-success">
           <div className="top-bar">
             <div className="top-bar-brand">
               <a href="/">

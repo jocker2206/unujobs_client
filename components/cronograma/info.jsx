@@ -38,7 +38,9 @@ export default class Info extends Component {
             afps: [],
             cargos: [],
             categorias: [],
+            bancos: [],
             current: "general",
+            send: false,
             navs: [
                 { id: 1, name: "Datos Generales", key: "general", active: true },
                 { id: 2, name: "Afectación Presupuestal", key: "afectacion",  active: false },
@@ -61,13 +63,13 @@ export default class Info extends Component {
     }
 
     componentDidMount() {
+        this.getBancos();
         this.getPlanillas();
         this.getAFPs();
-    }
-
-    componentWillReceiveProps(nextProps) {
-        let { query } = this.props;
-        if (nextProps.query.info != "" && query.info != nextProps.info) this.getCronograma(nextProps, this.state);
+        if (this.props.show && !Object.keys(this.state.historial).length) {
+            this.getCronograma(this.props, this.state);
+            console.log('ok');
+        }
     }
 
 
@@ -75,6 +77,7 @@ export default class Info extends Component {
         if (nextState.cronograma.planilla_id != this.state.cronograma.planilla_id ) this.getCargos(nextState);
         if (nextState.cargo_id != "" && nextState.cargo_id != this.state.cargo_id) this.getCategorias(nextState);
         if (nextState.cargo_id == "" && nextState.cargo_id != this.state.cargo_id) this.setState({ categoria_id: "", categorias: [] });
+        // if (nextProps.show != this.props.show && nextProps.show && !nextState.historial) this.getCronograma(nextProps, nextState);
     }
 
 
@@ -87,9 +90,17 @@ export default class Info extends Component {
         this.setState({ loading: false });
     }
 
+
     getAFPs = () => {
         axios.get(`${unujobs}/afp`)
         .then(res => this.setState({ afps: res.data }))
+        .catch(err => console.log(err.message));
+    }
+
+
+    getBancos = () => {
+        axios.get(`${unujobs}/banco`)
+        .then(res => this.setState({ bancos: res.data }))
         .catch(err => console.log(err.message));
     }
 
@@ -191,6 +202,21 @@ export default class Info extends Component {
     }
 
 
+    sendEmail = async () => {
+        let  { historial } = this.state;
+        this.setState({ block: true, send: true });
+        await axios.post(`${unujobs}/historial/${historial.id}/send_boleta`)
+        .then(res => {
+            let { success, message } = res.data;
+            let icon = success ? 'success' : 'error';
+            Swal.fire({ icon, text: message });
+        }).catch(err => {
+            Swal.fire({ icon: 'error', text: "Algo salió mal, vuelva más tarde!" });
+        });
+        this.setState({ block: false, send: false });
+    }
+
+
     getCargos = (state) => {
         let { cronograma } = state;
         axios.get(`${unujobs}/planilla/${cronograma.planilla_id}`)
@@ -260,7 +286,14 @@ export default class Info extends Component {
     render() {
 
         let { show } = this.props;
-        let { cronograma, exports, historial, planillas, afps, cargos, categorias, loading, cargo_id, categoria_id, afp_id } = this.state;
+        let { 
+            cronograma, exports, 
+            historial, planillas, 
+            afps, cargos, 
+            categorias, loading, 
+            cargo_id, categoria_id, 
+            afp_id 
+        } = this.state;
 
         let filname = `${historial.planilla && historial.planilla.descripcion}_${cronograma.mes}_${cronograma.year}${cronograma.adicional ? `_adicional_${cronograma.numero}` : ''}`;
         
@@ -281,7 +314,7 @@ export default class Info extends Component {
                                     onChange={this.handleInput}
                                     name="like"
                                     placeholder="Buscar por Nombre Completo o N° de documento"
-                                    autoComplete={false}
+                                    autoComplete="false"
                                 />   
                             </div>
 
@@ -352,18 +385,18 @@ export default class Info extends Component {
                                         :   <button className="btn btn-dark btn-block"
                                                 onClick={this.readCronograma}
                                                 title="Realizar Búsqueda"
-                                                disabled={loading || this.state.edit}
+                                                disabled={loading || this.state.edit || this.state.block}
                                             >
                                                 <i className="fas fa-filter"></i> Filtrar
                                             </button>
                                 }
                             </div>
 
-                            { this.state.total 
+                            { this.state.total && !this.state.block
                                 ?   <div className="col-md-1 mb-1">
                                         {
                                             exports.click 
-                                            ?   exports.loading 
+                                            ?   exports.loading
                                                 ?   <button className="btn-info btn btn-block"
                                                         disabled={exports.loading}
                                                     >
@@ -373,7 +406,7 @@ export default class Info extends Component {
                                                         headers={exports.headers} 
                                                         target="__blank"
                                                         className="btn btn-info btn-block"
-                                                        filename={`${filname}.csv`}
+                                                        filename={`${filname}.xlsx`}
                                                     >
                                                         <i className="fas fa-download"></i>
                                                     </CSVLink>
@@ -402,6 +435,7 @@ export default class Info extends Component {
                                 :   <div className="col-md-12 mt-3">
                                         {this.state.current == 'general' 
                                             ?   <Work 
+                                                    bancos={this.state.bancos}
                                                     historial={historial}
                                                     edit={this.state.edit}
                                                 /> 
@@ -486,7 +520,7 @@ export default class Info extends Component {
                                         <div className="col-md-2 mb-1">
                                             { this.state.total 
                                                 ?   <span className="btn btn-dark">
-                                                        Pág {this.state.page} de {this.state.total}
+                                                        {this.state.page} de {this.state.total}
                                                     </span> 
                                                 :   <button className="btn btn-danger btn-block"
                                                         onClick={this.clearSearch}
@@ -499,16 +533,34 @@ export default class Info extends Component {
                                 </div>
                                 
                                 <div className="col-md-4 text-right">
-                                    <Button size="md"
-                                        className={`mr-1 btn-${this.state.edit ? 'danger' : 'warning'}`}
-                                        disabled={loading || this.state.block}
-                                        onClick={(e) => this.setState(state => ({ edit: !state.edit }))}
-                                    >
-                                        <i className={`fas fa-${this.state.edit ? 'times' : 'pencil-alt'} mr-1`}></i>
-                                        { this.state.edit ? 'Cancelar' : 'Editar' }
-                                    </Button>
+                                    {
+                                        this.state.total && cronograma.estado
+                                        ?   <Button size="md"
+                                                className={`mr-1 btn-${this.state.edit ? 'danger' : 'warning'}`}
+                                                disabled={loading || this.state.block}
+                                                onClick={(e) => this.setState(state => ({ edit: !state.edit }))}
+                                            >
+                                                <i className={`fas fa-${this.state.edit ? 'times' : 'pencil-alt'} mr-1`}></i>
+                                                { this.state.edit ? 'Cancelar' : 'Editar' }
+                                            </Button>
+                                        :   null
+                                    }
 
-                                    {   !this.state.edit
+
+                                    {
+                                        this.state.total && !cronograma.estado
+                                        ?   <Button size="md"
+                                                className={`mr-1 btn-warning`}
+                                                disabled={loading || this.state.block}
+                                                onClick={this.sendEmail}
+                                            >
+                                                <i className="fas fa-envelope-open-text"></i> { this.state.send ? 'Enviando...' : 'Enviar Email' }
+                                            </Button>
+                                        :   null
+                                    }
+
+
+                                    {   !this.state.edit && this.state.total
                                         ?   <Button size="md" 
                                                 className="mr-1 btn-dark"
                                                 disabled={loading || this.state.edit || this.state.block}
@@ -519,7 +571,7 @@ export default class Info extends Component {
                                         : null
                                     }
 
-                                    {   !this.state.edit
+                                    {   !this.state.edit && this.state.total
                                         ?   <Button size="md" 
                                                 className="mr-1 btn-dark"
                                                 disabled={loading || this.state.edit || this.state.block}
@@ -530,7 +582,7 @@ export default class Info extends Component {
                                         : null
                                     }
 
-                                    {   !this.state.edit 
+                                    {   !this.state.edit && this.state.total
                                         ?   <Button size="md" 
                                                 className="mr-1 btn-dark"
                                                 disabled={loading || this.state.edit || this.state.block}
@@ -541,7 +593,7 @@ export default class Info extends Component {
                                         :   null
                                     }
 
-                                    { this.state.edit 
+                                    { this.state.edit
                                         ?   <Button size="md"
                                                 disabled={loading || !this.state.edit || this.state.block}
                                             >

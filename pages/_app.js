@@ -25,22 +25,37 @@ class MyApp extends App {
     return <Fragment>
       
       
-          <Head>
-            <meta charSet="utf-8"></meta>
-            <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"></meta>
-            <title>SRH</title>
-            <link rel="shortcut icon" href="/static/favicon.ico"></link>
-            <meta name="theme-color" content="#3063A0"></meta>
-            <link href="https://fonts.googleapis.com/css?family=Roboto:400,300,100,500,600,700,900" rel="stylesheet" type="text/css" />
-            <link rel="stylesheet" href="/static/css/open-iconic-bootstrap.min.css" />
-            <link rel="stylesheet" href="/static/css/all.css" />
-            <link rel="stylesheet" href="/static/css/buttons.bootstrap4.min.css"></link>
-            <link rel="stylesheet" href="/static/css/flatpickr.min.css" />
-            <link rel="stylesheet" href="/static/css/theme.min.css" data-skin="default" />
-            <link rel="stylesheet" href="/static/css/theme-dark.min.css" data-skin="dark" disabled={true} />
-            <link rel="stylesheet" href="/static/css/custom.css" />
-            <link rel="stylesheet" href="/static/css/skull.css" />
-        </Head>
+      <Head>
+        <meta charSet="utf-8"></meta>
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"></meta>
+        <title>SRH</title>
+        <link rel="shortcut icon" href="/static/favicon.ico"></link>
+        <meta name="theme-color" content="#3063A0"></meta>
+        <link href="https://fonts.googleapis.com/css?family=Roboto:400,300,100,500,600,700,900" rel="stylesheet" type="text/css" />
+        <link rel="stylesheet" href="/static/css/open-iconic-bootstrap.min.css" />
+        <link rel="stylesheet" href="/static/css/all.css" />
+        <link rel="stylesheet" href="/static/css/buttons.bootstrap4.min.css"></link>
+        <link rel="stylesheet" href="/static/css/flatpickr.min.css" />
+        <link rel="stylesheet" href="/static/css/theme.min.css" data-skin="default" />
+        <link rel="stylesheet" href="/static/css/theme-dark.min.css" data-skin="dark" disabled={true} />
+        <link rel="stylesheet" href="/static/css/custom.css" />
+        <link rel="stylesheet" href="/static/css/skull.css" />
+
+        <script src="/static/js/jquery.min.js"></script>
+        <script src="/static/js/popper.min.js"></script>
+        <script src="/static/js/bootstrap.min.js"></script>
+
+
+        {this.state.logging ? <script src="/static/js/pace.min.js"></script> : ''}
+
+        <script src="/static/js/stacked-menu.min.js"></script>
+        <script src="/static/js/perfect-scrollbar.min.js"></script>
+        <script src="/static/js/flatpickr.min.js"></script>
+        <script src="/static/js/jquery.easypiechart.min.js"></script>
+        <script src="/static/js/Chart.min.js"></script>
+        <script src="/static/js/theme.min.js"></script>
+
+      </Head>
 
 
       {

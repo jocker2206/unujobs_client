@@ -6,14 +6,12 @@ import { BtnEditar } from '../../components/Utils';
 export default class Work extends Component {
 
     state = {
-        bancos: [],
         history: {},
         work: {},
     };
 
 
     componentDidMount() {
-        this.getBancos();
         this.setting(this.props);
     }
 
@@ -40,16 +38,10 @@ export default class Work extends Component {
     }
 
 
-    getBancos = () => {
-        axios.get(`${unujobs}/banco`)
-        .then(res => this.setState({ bancos: res.data }))
-        .catch(err => console.log(err.message));
-    }
-
-
     render() {
 
-        let { bancos, work } = this.state;
+        let { work } = this.state;
+        let { bancos } = this.props;
 
         return (
             <Fragment>
@@ -61,6 +53,7 @@ export default class Work extends Component {
                                 className="form-control" 
                                 name="ape_paterno"
                                 value={work.ape_paterno}
+                                onChange={this.handleInput}
                                 disabled={true}
                             />
                         </div>
@@ -71,6 +64,7 @@ export default class Work extends Component {
                                 className="form-control" 
                                 name="ape_paterno"
                                 value={work.fecha_de_nacimiento}
+                                onChange={this.handleInput}
                                 disabled={true}
                             />
                         </div>
@@ -80,7 +74,7 @@ export default class Work extends Component {
                             <input type="text" 
                                 className="form-control" 
                                 name="phone"
-                                value={work.phone}
+                                value={work.phone ? work.phone : ""}
                                 disabled={!this.props.edit}
                                 onChange={this.handleInput}
                             />
@@ -103,6 +97,7 @@ export default class Work extends Component {
                                 className="form-control" 
                                 name="ape_materno"
                                 value={work.ape_materno}
+                                onChange={this.handleInput}
                                 disabled={true}
                             />
                         </div>
@@ -112,6 +107,7 @@ export default class Work extends Component {
                             <select name="sexo" 
                                 value={work.sexo} 
                                 className="form-control"
+                                onChange={this.handleInput}
                                 disabled={true}
                             >
                                 <option value="">Select. Sexo</option>

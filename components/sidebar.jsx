@@ -74,8 +74,8 @@ class Sidebar extends Component {
                 <ul className="menu">
                   <li className="menu-item has-active">
                     <a href="/" className="menu-link">
-                      <span className="menu-icon fas fa-user"></span>{" "}
-                      <span className="menu-text">Perfil</span>
+                      <span className="menu-icon fas fa-user text-success"></span>{" "}
+                      <span className="menu-text text-success">Perfil</span>
                     </a>
                   </li>
                   <Navigation options={this.state.options}/>

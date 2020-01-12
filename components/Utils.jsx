@@ -206,13 +206,13 @@ const Skull = ({ height, radius, padding, top }) => (
 
 
 const Tab = ({ navs = [], onClick }) => (
-  <ul class="nav nav-tabs">
+  <ul className="nav nav-tabs">
     {navs.map((obj, index) => 
-      <li class="nav-item" 
+      <li className="nav-item" 
         key={`nav-${obj.id}`}
       >
         <a href="#" 
-          class={`nav-link text-sm ${obj.active ? 'active' : ''}`}
+          className={`nav-link text-sm ${obj.active ? 'active' : ''}`}
           onClick={(e) => {
             e.preventDefault();
             if (typeof onClick == 'function') onClick(e, obj, index);
