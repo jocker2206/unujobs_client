@@ -77,7 +77,7 @@ export default class Info extends Component {
         if (nextState.cronograma.planilla_id != this.state.cronograma.planilla_id ) this.getCargos(nextState);
         if (nextState.cargo_id != "" && nextState.cargo_id != this.state.cargo_id) this.getCategorias(nextState);
         if (nextState.cargo_id == "" && nextState.cargo_id != this.state.cargo_id) this.setState({ categoria_id: "", categorias: [] });
-        // if (nextProps.show != this.props.show && nextProps.show && !nextState.historial) this.getCronograma(nextProps, nextState);
+        if (nextProps.show != this.props.show && nextProps.show && !Object.keys(nextState.historial).length) this.getCronograma(nextProps, nextState);
     }
 
 
