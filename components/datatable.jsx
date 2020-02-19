@@ -26,7 +26,9 @@ export default class DataTable extends Component {
   }
 
   componentWillReceiveProps(newProps) {
-    this.setDataTable(newProps);
+    if (newProps != this.props) {
+      this.setDataTable(newProps);
+    }
   }
 
   checkDefault = async () => {
@@ -125,6 +127,7 @@ export default class DataTable extends Component {
     let {
       loading,
       options,
+      optionAlign,
       headers,
       index,
       filters,
@@ -251,10 +254,10 @@ export default class DataTable extends Component {
                           {index && index.length > 0
                             ? index.map((attr, i) => (
                                 <td key={`column-datatable-${attr}-${i}-${index}`}>
-                                  <div className="row">
+                                  <div className={`row justify-content-${attr.justify}`}>
                                     {attr.type == "icon" ? <span className={`badge badge-${attr.bg ? attr.bg : 'primary'}`}>{this.verifyObjects(obj, attr)}</span> : null}
                                     {attr.type == "text" ? this.verifyObjects(obj, attr) : null}
-                                    {attr.type == "switch" ? <span className={`badge badge-${this.verifyObjects(obj, attr) ? 'success' : 'danger'}`}>{this.verifyObjects(obj, attr) ? 'En curso' : 'Terminado'}</span> : null}
+                                    {attr.type == "switch" ? <span className={`badge badge-${this.verifyObjects(obj, attr) ? `${attr.bg_true ? attr.bg_true : 'success'}` : `${attr.bg_false ? attr.bg_false : 'danger'}`}`}>{this.verifyObjects(obj, attr) ? attr.is_true : attr.is_false}</span> : null}
                                     {attr.children && attr.children.length > 0 && attr.children.map(chi => 
                                         <span className="row align-items-center" key={`children-${chi}`}>
                                           {this.verifyObjects(obj, chi) ? 
@@ -279,8 +282,8 @@ export default class DataTable extends Component {
                               ))
                             : null}
                           {options && options.length > 0 ? (
-                            <td className="align-middle text-right">
-                              <div className="row">
+                            <td className={`align-middle text-right`}>
+                              <div className="row justify-content-center">
                               {options.map((option, iter) => {
 
                                   let { rules } = option;
@@ -297,6 +300,7 @@ export default class DataTable extends Component {
                                     <a
                                       className={`mr-1 btn btn-sm btn-icon btn-secondary ${option.className}`}
                                       href="#598"
+                                      title={option.title}
                                       key={`${option.key}-${iter}-${obj.__id}`}
                                       onClick={this.optionAction.bind(
                                         this,

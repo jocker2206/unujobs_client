@@ -21,6 +21,7 @@ export default class Info extends Component {
             total: 0,
             like: "",
             page: 1,
+            cronograma_id: '',
             last_page: 1,
             edit: false,
             loading: false,
@@ -62,14 +63,17 @@ export default class Info extends Component {
         this.close = this.close.bind(this);
     }
 
-    componentDidMount() {
+    async componentDidMount() {
+        let { query } = this.props;
+        let id = query.info ? await atob(query.info) : "";
+        await this.setState({ cronograma_id: id });
+        if (this.props.show && !Object.keys(this.state.historial).length) {
+            this.getCronograma(this.props, this.state);
+        }
+        // obtener configuración basica
         this.getBancos();
         this.getPlanillas();
         this.getAFPs();
-        if (this.props.show && !Object.keys(this.state.historial).length) {
-            this.getCronograma(this.props, this.state);
-            console.log('ok');
-        }
     }
 
 
@@ -92,7 +96,7 @@ export default class Info extends Component {
 
 
     getAFPs = () => {
-        axios.get(`${unujobs}/afp`)
+        axios.get(`${unujobs}/cronograma/${this.state.cronograma_id}/afp`)
         .then(res => this.setState({ afps: res.data }))
         .catch(err => console.log(err.message));
     }
@@ -189,9 +193,7 @@ export default class Info extends Component {
                         last_page: historial.last_page 
                     });
                 }
-            }).catch(err => {
-                console.log(err);
-            });
+            }).catch(err => console.log(err));
         } catch(ex) {
             console.log(ex);
         }
@@ -219,10 +221,9 @@ export default class Info extends Component {
 
     getCargos = (state) => {
         let { cronograma } = state;
-        axios.get(`${unujobs}/planilla/${cronograma.planilla_id}`)
+        axios.get(`${unujobs}/cronograma/${cronograma.id}/cargo`)
         .then(async res => {
-            let { cargos } = res.data;
-            this.setState({ cargos });
+            this.setState({ cargos: res.data });
         }).catch(err =>  console.log(err.message));
     }
 
@@ -327,7 +328,7 @@ export default class Info extends Component {
                                     disabled={loading || this.state.edit || this.state.block}
                                 >
                                     <option value="">Select. Cargo</option>
-                                    {cargos.map(obj => 
+                                    {cargos && cargos.map(obj => 
                                         <option key={`cargo-${obj.id}`}
                                             value={obj.id}
                                         >
@@ -344,7 +345,7 @@ export default class Info extends Component {
                                     disabled={loading || this.state.edit || this.state.block}
                                 >
                                     <option value="">Select. Categoría</option>
-                                    {categorias.map(obj => 
+                                    {categorias && categorias.map(obj => 
                                         <option key={`categoria-${obj.id}`}
                                             value={obj.id}
                                         >
@@ -361,7 +362,7 @@ export default class Info extends Component {
                                     disabled={loading || this.state.edit || this.state.block}
                                 >
                                     <option value="">Select. AFP</option>
-                                    {afps.map(obj => 
+                                    {afps && afps.map(obj => 
                                         <option key={`categoria-${obj.id}`}
                                             value={obj.id}
                                         >
@@ -524,6 +525,7 @@ export default class Info extends Component {
                                                         {this.state.page} de {this.state.total}
                                                     </span> 
                                                 :   <button className="btn btn-danger btn-block"
+                                                        disabled={loading}
                                                         onClick={this.clearSearch}
                                                     >
                                                         <i className="fas fa-trash"></i> Limpiar
