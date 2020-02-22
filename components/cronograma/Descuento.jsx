@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import axios from 'axios';
-import { unujobs } from '../../services/urls';
+import { authentication } from '../../services/apis';
 
 export default class Descuento extends Component
 {
@@ -23,7 +23,7 @@ export default class Descuento extends Component
 
     getRemuneraciones = async (props) => {
         let { historial } = props;
-        axios.get(`${unujobs}/historial/${historial.id}/descuento`)
+        authentication.get(`historial/${historial.id}/descuento`)
         .then(res => {
             let { descuentos, total_bruto, total_desct, total_neto, base } = res.data;
             this.setState({ 

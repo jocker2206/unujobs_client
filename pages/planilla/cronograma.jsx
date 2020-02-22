@@ -1,11 +1,10 @@
 import React, {Component, Fragment} from 'react';
-import {Button} from 'react-bootstrap';
 import Datatable from '../../components/datatable';
-import {unujobs} from '../../services/urls';
-import axios from 'axios';
 import Router from 'next/router';
 import btoa from 'btoa';
 import Info from '../../components/cronograma/info';
+import { authentication } from '../../services/apis';
+import { Form, Button } from 'semantic-ui-react';
 
 export default class Cronograma extends Component {
 
@@ -32,7 +31,7 @@ export default class Cronograma extends Component {
         let date = new Date();
         await this.setState({
             year: date.getFullYear(),
-            mes: date.getMonth() == 0 ? 1 : date.getMonth()
+            mes: date.getMonth() + 1
         });
         // obtener cronogramas
         this.getCronogramas();
@@ -46,7 +45,7 @@ export default class Cronograma extends Component {
     getCronogramas = async () => {
         this.setState({loading: true});
         let {mes, year} = this.state;
-        await axios.get(`${unujobs}/cronograma?mes=${mes}&year=${year}`).then(res => {
+        await authentication.get(`cronograma?mes=${mes}&year=${year}`).then(res => {
             let {data} = res.data;
             this.setState({cronogramas: data});
         }).catch(err => console.log(err.message));
@@ -69,9 +68,7 @@ export default class Cronograma extends Component {
                 <Datatable titulo="Lista de Planillas x Mes"
                     isFilter={false}
                     loading={loading}
-                    headers={
-                        ["#ID", "Planilla", "Sede", "Estado"]
-                    }
+                    headers={ ["#ID", "Planilla", "Sede", "Estado"]}
                     index={
                         [
                             {
@@ -119,51 +116,48 @@ export default class Cronograma extends Component {
                             }
                         ]
                     }
-                    getOption={
-                        this.getOption
-                    }
+                    getOption={this.getOption}
                     data={cronogramas}>
-                    <div className="form-group">
+                    <Form className="mb-3">
                         <div className="row">
                             <div className="col-md-2 mb-1">
-                                <input type="number" min="2019" className="form-control" placeholder="Año" name="year"
-                                    value={
-                                        this.state.year
-                                    }
-                                    disabled={
-                                        this.state.loading
-                                    }
-                                    onChange={
-                                        this.handleInput
-                                    }/>
+                                <Form.Field>
+                                    <input type="number" 
+                                        min="2019" 
+                                        placeholder="Año" 
+                                        name="year"
+                                        value={this.state.year}
+                                        disabled={this.state.loading}
+                                        onChange={this.handleInput}
+                                    />
+                                </Form.Field>
                             </div>
                             <div className="col-md-2 mb-1">
-                                <input type="number" min="1" max="12" className="form-control" placeholder="Mes" name="mes"
-                                    value={
-                                        this.state.mes
-                                    }
-                                    onChange={
-                                        this.handleInput
-                                    }
-                                    disabled={
-                                        this.state.loading
-                                    }/>
+                                <Form.Field>
+                                    <input type="number" 
+                                        min="1" 
+                                        max="12" 
+                                        placeholder="Mes" 
+                                        name="mes"
+                                        value={this.state.mes}
+                                        onChange={this.handleInput}
+                                        disabled={this.state.loading}
+                                    />
+                                </Form.Field>
                             </div>
                             <div className="col-md-2">
-                                <Button onClick={
-                                        this.getCronogramas
-                                    }
-                                    disabled={
-                                        this.state.loading
-                                    }
-                                    className="btn-block">
+                                <Button 
+                                    onClick={this.getCronogramas}
+                                    disabled={this.state.loading}
+                                    color="blue"
+                                >
                                     <i className="fas fa-search"></i>
-                                    <span>
-                                        Buscar</span>
+                                    <span>Buscar</span>
                                 </Button>
                             </div>
                         </div>
-                    </div>
+                        <hr/>
+                    </Form>
                 </Datatable>
                 {/* componentes de la ventana  */}
                 <Info show={

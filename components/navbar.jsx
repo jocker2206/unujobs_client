@@ -1,18 +1,22 @@
 import React, { Component, Fragment } from "react";
 import SkullAuth from "../components/loaders/skullAuth";
 import Logo from "../components/logo";
-import axios from 'axios';
-import { unujobs } from '../services/urls';
-import { Bearer } from '../services/auth';
+import { authentication } from '../services/apis';
+import Cookies from 'js-cookie';
+import Swal from 'sweetalert2';
+import { connect } from 'react-redux';
+import initStore from '../storage/store';
+import { authsActionsTypes } from '../storage/actions/authsActions';
 
 
 class Navbar extends Component {
+
   constructor(props) {
     super(props);
     this.state = {
       show: true,
       config: false,
-      loading: false,
+      loading: true,
       auth: { }
     };
 
@@ -20,9 +24,14 @@ class Navbar extends Component {
     this.handleConfig = this.handleConfig.bind(this);
   }
 
-  componentDidMount = () => {
-    this.getAuth();
+
+  componentDidMount() {
+    this.setState((state, props) => {
+      let { user } = props.getState().auth ? props.getState().auth : {};
+      return { auth: user };
+    });
   }
+
 
   async responsive(e) {
     let body = document.getElementsByTagName("body")[0];
@@ -37,27 +46,27 @@ class Navbar extends Component {
 
   async logout(e) {
     e.preventDefault();
+    await authentication.post('logout')
+    .then(async res => {
+      let { success, message } = res.data;
+      if (success) {
+        Cookies.remove('auth_token');
+        await Swal.fire({ icon: 'success', text: message });
+        history.go('/login');
+      } else {
+        Swal.fire({ icon: 'error', text: message });
+      }
+    }).catch(err => Swal.fire({ icon: 'error', text: err.message }));
   }
 
-  getAuth = async () => {
-    this.setState({ loading: true });
-    await axios.get(`${unujobs}/me`, { headers: { Authorization: await Bearer() } })
-    .then(res => {
-      let { user } = res.data;
-      this.setState({ auth: user });
-    }).catch(err => {
-      console.log(err.message);
-    });
-    this.setState({ loading: false });
-  }
-
+  
   render() {
 
     let { loading, auth } = this.state;
 
     return (
       <Fragment>
-        <header className="app-header app-header-dark bg-success">
+        <header className="app-header app-header-dark">
           <div className="top-bar">
             <div className="top-bar-brand">
               <a href="/">
@@ -97,7 +106,7 @@ class Navbar extends Component {
                       <div className="dropdown-scroll perfect-scrollbar">
                         <a href="#" className="dropdown-item unread">
                           <div className="user-avatar">
-                            <img src="/static/img/avatars/team1.jpg" alt="" />
+                            <img src="/img/avatars/team1.jpg" alt="" />
                           </div>
                           <div className="dropdown-item-body">
                             <p className="subject"> Stilearning </p>
@@ -110,7 +119,7 @@ class Navbar extends Component {
                         </a>
                         <a href="#" className="dropdown-item">
                           <div className="user-avatar">
-                            <img src="/static/img/avatars/team3.png" alt="" />
+                            <img src="/img/avatars/team3.png" alt="" />
                           </div>
                           <div className="dropdown-item-body">
                             <p className="subject"> Openlane </p>
@@ -145,7 +154,7 @@ class Navbar extends Component {
                         </a>
                         <a href="#" className="dropdown-item">
                           <div className="user-avatar">
-                            <img src="/static/img/avatars/team2.png" alt="" />
+                            <img src="/img/avatars/team2.png" alt="" />
                           </div>
                           <div className="dropdown-item-body">
                             <p className="subject"> Creative Division </p>
@@ -177,9 +186,7 @@ class Navbar extends Component {
                 </ul>
 
                       <div className="dropdown d-flex">
-                        {loading ? (
-                          <SkullAuth />
-                        ) : (
+                        {auth ? (
                           <button
                             className="btn-account d-none d-md-flex"
                             type="button"
@@ -189,20 +196,21 @@ class Navbar extends Component {
                           >
                             <span className="user-avatar user-avatar-md">
                               <img
-                                src="/static/img/perfil.jpg"
+                                src="/img/perfil.jpg"
                                 alt=""
                               />
                             </span>{" "}
                             <span className="account-summary pr-lg-4 d-none d-lg-block">
                               <span className="account-name" style={{ textTransform: 'capitalize' }}>
-                                {auth && auth.nombre_completo}
+                                {auth && auth.nombre_completo }
                               </span>{" "}
                               <span className="account-description">
-                                {auth &&
-                                  auth.email}
+                                {auth && auth.email}
                               </span>
                             </span>
                           </button>
+                        ) : (
+                          <SkullAuth />
                         )}
 
                         <div className="dropdown-menu">
@@ -213,7 +221,7 @@ class Navbar extends Component {
                           </h6>
                           <a className="dropdown-item" href="user-profile.html">
                             <span className="dropdown-icon oi oi-person"></span>{" "}
-                            Profile
+                            Perfil
                           </a>{" "}
 
                                 <a
@@ -237,4 +245,4 @@ class Navbar extends Component {
   }
 }
 
-export default Navbar;
+export default connect(initStore)(Navbar);

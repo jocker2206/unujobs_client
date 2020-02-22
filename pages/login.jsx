@@ -1,24 +1,30 @@
 import React, { Component } from 'react';
-import { unujobs } from '../services/urls';
-import axios from 'axios';
 import Swal from 'sweetalert2';
-import { login, isGuest } from '../services/auth';
+import { GUEST } from '../services/auth';
+import { authentication } from '../services/apis';
+import Cookies from 'js-cookie';
+import { connect } from 'react-redux';
+import initStore from '../storage/store';
 
-export default class Login extends Component
+
+class Login extends Component
 {
+
+    static getInitialProps = async (ctx) => {
+        let { query, pathname } = ctx.req;
+        // verificar guest
+        await GUEST(ctx)
+        // response
+        return { query, pathname };
+    }
 
     state = {
         email: "",
         password: "",
         loading: false,
         errors: {},
-        page: false,
+        progress: 0
     };
-
-
-    componentDidMount = async () => {
-        this.setState({ page: await isGuest() });
-    }
 
 
     handleInput = (e) => {
@@ -29,44 +35,43 @@ export default class Login extends Component
 
     handleSubmit = async (e) => {
         e.preventDefault();
-        this.setState({ loading: true, errors: {} });
-        let { email, password } = this.state;
-        axios.post(`${unujobs}/login`, { email, password }).then( async res => {
+        this.setState({ loading: true });
+        let payload = { 
+            email: this.state.email, 
+            password: this.state.password
+        };
+        await authentication.post('login', payload)
+        .then(async res => {
             let { success, message, token } = res.data;
-            let icon = success ? 'success' : 'error';
-            await Swal.fire({ icon, text: message });
-            if (await login(token)) {
-                location.href = "/";
+            if (success) {
+                Cookies.remove('auth_token');
+                Cookies.set('auth_token', token);
+                history.go('/');
+            }else {
+                // mensage de error
+                Swal.fire({icon: 'error', text: message });
             }
-        }).catch(err => {
-            let { data } = err.response ? err.response : {};
-            if (data) {
-                this.setState({ errors: data ? data.errors : {} });
-            } else {
-                Swal.fire({ icon: "error", text: err.message });
-            }
-        });
+        })
+        .catch(err => Swal.fire({icon: 'error', text: err.message}));
         this.setState({ loading: false });
     }
 
 
     render() {
 
-        let { page, errors, email, password, loading } = this.state;
-
-        if (page == false) return null;
+        let { errors, email, password, loading } = this.state;
 
         return (
             <div className="auth">
                 <header
                     id="auth-header"
-                    className="auth-header bg-success"
+                    className="auth-header"
                     style={{ paddingTop: "3em" }}
                 >
     
-                    <img src="/static/img/logo-unu.png"
+                    <img src="/img/logo-unu.png"
                         alt="logo"
-                        style={{ width: "150px", borderRadius: "0.5em" }}
+                        style={{ width: "120px", borderRadius: "0.5em", padding: '0.5em', background: '#fff' }}
                     />
                     
                     <h4>UNU - SRH</h4>
@@ -96,7 +101,7 @@ export default class Login extends Component
                         />{" "}
                             <label htmlFor="inputUser">Correo</label>
                         </div>
-                        <b class="text-danger">{errors.email && errors.email[0]}</b>
+                        <b className="text-danger">{errors.email && errors.email[0]}</b>
                     </div>
 
                     <div className="form-group">
@@ -112,13 +117,13 @@ export default class Login extends Component
                         />{" "}
                             <label htmlFor="inputPassword">Contraseña</label>
                         </div>
-                        <b class="text-danger">{errors.password && errors.password[0]}</b>
+                        <b className="text-danger">{errors.password && errors.password[0]}</b>
                     </div>
 
                     <div className="form-group">
                         <button
                             disabled={loading}
-                            className={`btn btn-lg btn-success btn-block`}
+                            className={`btn btn-lg btn-primary btn-block`}
                             type="submit"
                         >
                             {loading ? "Verificando...." : "Iniciar Sesión"}
@@ -141,9 +146,8 @@ export default class Login extends Component
                         Recuperar cuenta
                         </a>
                     </div>
-
                 </form>
-                
+
                 <footer className="auth-footer">
                     {" "}
                     © 2019 Todos Los Derechos Reservados <a href="#">Privacidad</a> y
@@ -154,3 +158,6 @@ export default class Login extends Component
     }
 
 }
+
+
+export default connect(initStore)(Login);

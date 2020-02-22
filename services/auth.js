@@ -1,73 +1,31 @@
+import NextCookie from 'next-cookies';
+import { setCookie } from 'nookies';
 
-const login = async (token) => {
-    let oldToken = await localStorage.token;
-    if (oldToken != "") {
-        if (token) {
-            localStorage.token = token;
-            return true;
-        }
-    }
-
-    return false;
-}
+export const AUTH =  (ctx) => {
+    return NextCookie(ctx).auth_token || false;
+};
 
 
-const destroy = () => {
-    let token = typeof localStorage == 'object' ? localStorage : {}; 
-    if (token.removeItem('token')) return true;
-    return false;
-}
+export const AUTHENTICATE = (ctx) => {
+    // authorize
+    if (AUTH(ctx)) return true;
+    // not authorize
+    ctx.res.writeHead(301, { Location: '/login' })
+    ctx.res.end();
+    ctx.res.finished = true;
+};
 
 
-const getToken = () => {
-    return typeof localStorage == 'object' ? localStorage.token : '';
-}
+export const GUEST = (ctx) => {
+    // is guest
+    if (!AUTH(ctx)) return true;
+    // is AUTHENTICATE
+    ctx.res.writeHead(301, { Location: '/' });
+    ctx.res.end();
+    ctx.res.finished = true;
+};
 
 
-const refreshToken = (newToken) => {
-    if (newToken) {
-        typeof localStorage == 'object' ? localStorage.setItem('token', newToken) : '';
-        return true;
-    }
-
-    return false;
-}
-
-
-const isAuth = async () => {
-    if (await getToken()) {
-        return true;
-    }
-
-    let local = typeof location == 'object' ? location : {};
-    local.href = "/login";
-
-    return false;
-}
-
-const isGuest = async () => {
-    if (await getToken()) {
-        let local = typeof location == 'object' ? location : {};
-        local.href = "/";
-
-        return false;
-    }
-
-    return true;
-}
-
-
-const Bearer = async () => {
-    return `Bearer ${await getToken()}`
-}
-
-
-module.exports = {
-    login,
-    destroy,
-    getToken,
-    refreshToken,
-    isAuth,
-    isGuest,
-    Bearer
-}
+export const LOGIN = (ctx, token) => {
+    setCookie(ctx, 'auth_token', token);
+};

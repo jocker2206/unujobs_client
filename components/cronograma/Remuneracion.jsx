@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
-import axios from 'axios';
-import { unujobs } from '../../services/urls';
+import { authentication } from '../../services/apis';
+import { Button, Form, Input } from 'semantic-ui-react';
+
 
 export default class Remuneracion extends Component
 {
@@ -8,7 +9,7 @@ export default class Remuneracion extends Component
 
     state = {
         remuneraciones: [],
-        loader: false,
+        loader: true,
         total_bruto: 0,
         total_desct: 0,
         base: 0,
@@ -23,7 +24,7 @@ export default class Remuneracion extends Component
 
     getRemuneraciones = async (props) => {
         let { historial } = props;
-        axios.get(`${unujobs}/historial/${historial.id}/remuneracion`)
+        await authentication.get(`historial/${historial.id}/remuneracion`)
         .then(res => {
             let { remuneraciones, total_bruto, total_desct, total_neto, base } = res.data;
             this.setState({ 
@@ -34,12 +35,13 @@ export default class Remuneracion extends Component
                 base
             });
         }).catch(err => console.log(err.message));
+        this.setState({ loader: false });
     }
 
 
     render() {
 
-        let { remuneraciones, total_bruto, total_desct, total_neto, base } = this.state;
+        let { remuneraciones, total_bruto, total_desct, total_neto, base, loader } = this.state;
  
         return (
             <form className="row">
@@ -47,16 +49,24 @@ export default class Remuneracion extends Component
                 <div className="col-md-12">
                     <div className="row justify-content-center">
                         <b className="col-md-3">
-                            <span className="btn btn-outline-dark btn-block">Total Descuentos: S/ { total_desct }</span>
+                            <Button basic loading={loader} fluid color="black">
+                                {loader ? 'Cargando...' : `Total Descuentos: S/ ${total_desct}`}
+                            </Button>
                         </b>
                         <b className="col-md-3">
-                            <span className="btn btn-outline-dark btn-block">Total Bruto: S/ { total_bruto }</span>
+                            <Button basic loading={loader} fluid color="black">
+                                {loader ? 'Cargando...' : `Total Bruto: S/ ${total_bruto}`}
+                            </Button>
                         </b>
                         <b className="col-md-3">
-                            <span className="btn btn-outline-dark btn-block">Base Imponible: S/ { base }</span>
+                            <Button basic loading={loader} fluid color="black">
+                                {loader ? 'Cargando...' : `Base Imponible: S/ ${base}`}
+                            </Button>
                         </b>
                         <b className="col-md-3">
-                            <span className="btn btn-outline-dark btn-block">Total Neto: S/ { total_neto }</span>
+                            <Button basic loading={loader} fluid color="black">
+                                {loader ? 'Cargando...' : `Total Neto: S/ ${total_neto}`}
+                            </Button>
                         </b>
                     </div>
                 </div>
@@ -80,11 +90,13 @@ export default class Remuneracion extends Component
                                 </span>
                             </b>
                             <div className="col-md-4">
-                                <input type="text" 
-                                    className="form-control"
-                                    value={obj.monto}
-                                    disabled={obj.edit ? true : false}
-                                />
+                                <Form.Field>
+                                    <input type="number"
+                                        step="any" 
+                                        value={obj.monto}
+                                        disabled={!obj.edit ? true : !this.props.edit}
+                                    />
+                                </Form.Field>
                             </div>
                         </div>
                     </div>

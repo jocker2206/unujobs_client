@@ -1,15 +1,16 @@
 import React, { Component, Fragment } from 'react';
 import SkullNavigation from './loaders/skullNavigation';
 import Router from 'next/router';
+import Link from 'next/link';
 
 
 const NavLink = ({ children, active = false, url = '/' }) => {
     return (
-        <a className={`menu-link ${active ? 'active' : ''}`}
-            href={url}
-        >
-            { children }
-        </a>
+        <Link href={url}>
+            <a className={`menu-link ${active ? 'text-dark' : ''}`}>
+                { children }
+            </a>
+        </Link>
     )
 }
 
@@ -25,10 +26,11 @@ class Navigation extends Component {
     }
 
 
-    componentWillReceiveProps(newProps) {
-        this.setState((state, props) => ({
-            newOptions: props.options
+    async componentWillReceiveProps(newProps) {
+        await this.setState((state, props) => ({
+            newOptions: newProps.options
         }));
+        await this.activeToggle();
     }
 
 
@@ -70,12 +72,39 @@ class Navigation extends Component {
         });
     }
 
+    activeToggle = async (nextProps) => {
+        let tmpParent = Router.pathname.split('/');
+        let parent = `/${tmpParent[1]}`;
+        let child = tmpParent[2];
+        await this.setState(async state => {
+            let options = await state.newOptions.map(async opt => {
+                if(opt.path == parent) {
+                    opt.toggle = true;
+                    opt.modulos = await this.activeModule(opt, child);
+                }
+                // retornar
+                return opt;
+            });
+            return { newOptions: options };
+        });
+    }
+
+    activeModule = async (option, child) => {
+        let modules = await option.modulos.filter(obj => {
+            obj.active = child == obj.alias ? true : false;
+            console.log(obj.alias, " == ", child);
+            return obj;
+        });
+        // modules
+        return modules;
+    }
+
     render() {
 
         let { newOptions } = this.state;
         if (newOptions && newOptions.length > 0) {
             return newOptions.map((obj, index) => 
-                <li className={`menu-item ${obj.toggle ? 'has-open' : 'has-child'}`}
+                <li className={`menu-item ${obj.toggle ? 'has-open has-active' : 'has-child'}`}
                     key={`option-sidebar-${obj.id}`}
                 >
                     <span style={{ cursor: 'pointer' }} className="menu-link" onClick={this.handleClick.bind(this, obj.id)}>
@@ -89,7 +118,7 @@ class Navigation extends Component {
                             <li className="menu-subhead">{obj.name}</li>
                             {obj.modulos.map( mod => 
                                 <li className="menu-item" key={`childre-${mod.id}`}>
-                                    <NavLink url={`/${mod.slug}`}>
+                                    <NavLink url={`${mod.slug}`} active={mod.active}>
                                         { mod.name }
                                     </NavLink>
                                 </li>

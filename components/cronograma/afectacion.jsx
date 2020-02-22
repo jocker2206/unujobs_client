@@ -1,7 +1,8 @@
 import React, {Component} from 'react';
-import axios from 'axios';
-import {unujobs} from '../../services/urls';
-import {BtnEditar} from '../../components/Utils';
+import { authentication } from '../../services/apis';
+import { Form, Select } from 'semantic-ui-react';
+import Show from '../show';
+import { parseOptions } from '../../services/utils';
 
 export default class Afectacion extends Component {
 
@@ -29,20 +30,16 @@ export default class Afectacion extends Component {
 
 
     componentWillUpdate(nextProps, nextState) {
-        if (nextState.history.afp_id != this.state.history.afp_id) 
+        if (nextState.history.afp_id != this.state.history.afp_id) {
             this.getTypeAFP(nextState);
-        
-
-
+        }
     }
 
 
-    componentWillReceiveProps(nextProps) {
-        if (nextProps.historial != this.props.historial) 
-            this.setting(nextProps);
-        
-
-
+    async componentWillReceiveProps(nextProps) {
+        if (nextProps.historial != this.state.history || nextProps.historial != this.props.historial) {
+            await this.setting(nextProps);
+        }
     }
 
 
@@ -55,7 +52,7 @@ export default class Afectacion extends Component {
 
 
     getAFPs = async () => {
-        await axios.get(`${unujobs}/afp`).then(res => this.setState({
+        await authentication.get(`afp`).then(res => this.setState({
             afps: res.data ? res.data.data : []
         })).catch(err => console.log(err.message));
     }
@@ -80,29 +77,34 @@ export default class Afectacion extends Component {
     }
 
 
+    handleSelect = async (e, { name, value }) => {
+        let newObject = Object.assign({}, this.state.history);
+        newObject[name] = value;
+        this.setState({history: newObject});
+    }
+
+
     getMetas = () => {
         let {history} = this.state;
-        axios.get(`${unujobs}/cronograma/${
-            history.cronograma_id
-        }/meta`).then(res => this.setState({metas: res.data})).catch(err => console.log(err.message));
+        authentication.get(`cronograma/${history.cronograma_id}/meta`)
+        .then(res => this.setState({metas: res.data}))
+        .catch(err => console.log(err.message));
     }
 
 
     getCargos = (state) => {
         let {history} = state;
-        axios.get(`${unujobs}/cronograma/${
-            history.cronograma_id
-        }/cargo`).then(res => {
-            let {cargos} = res.data;
-            this.setState({
-                cargos: cargos ? cargos : []
-            });
+        authentication.get(`cronograma/${history.cronograma_id}/cargo`)
+        .then(res => {
+            this.setState({ cargos: res.data ? res.data : [] });
         }).catch(err => console.log(err.message));
     }
 
 
     getSindicatos = () => {
-        axios.get(`${unujobs}/sindicato`).then(res => this.setState({sindicatos: res.data})).catch(err => console.log(err.message));
+        authentication.get(`sindicato`)
+        .then(res => this.setState({sindicatos: res.data}))
+        .catch(err => console.log(err.message));
     }
 
 
@@ -119,333 +121,243 @@ export default class Afectacion extends Component {
         } = this.state;
 
         return (
-            <form className="row">
+            <div className="row">
                 <div className="col-md-3">
-                    <div className="form-group">
-                        <b>AFP</b>
-                        {
-                        this.props.edit ? <select name="afp_id" className="form-control"
-                            value={
-                                history.afp_id
-                            }
-                            onChange={
-                                this.handleInput
-                            }
-                            disabled={
-                                !this.props.edit
-                        }>
-                            <option value="">Select. AFP</option>
-                            {
-                            afps && afps.map(obj => <option key={
-                                    `afp-item-${
-                                        obj.id
-                                    }`
-                                }
-                                value={
-                                    obj.id
-                            }>
-                                {
-                                obj.nombre
-                            } </option>)
-                        } </select> : <input type="text" className="form-control"
-                            disabled={true}
-                            value={
-                                history.afp && history.afp.nombre
-                            }/>
-                    } </div>
+                    <Form.Field>
+                        <b>AFP <b className="text-red">*</b></b>
+                        <Show condicion={this.props.edit}>
+                            <Select
+                                options={parseOptions(afps, ['sel-afp', '', 'Select. AFP'], ['id', 'id', 'nombre'])}
+                                placeholder="Select. AFP"
+                                value={history.afp_id}
+                                name="afp_id"
+                                onChange={this.handleSelect}
+                            />
+                        </Show>
+                        <Show condicion={!this.props.edit}>
+                            <input type="text"
+                                disabled={true}
+                                value={history.afp && history.afp.nombre}
+                            />
+                        </Show>
+                    </Form.Field>
 
-                    <div className="form-group">
-                        <b>Fecha de Ingreso</b>
-                        <input type="date" className="form-control" name="fecha_de_ingreso"
-                            value={
-                                history.fecha_de_ingreso
-                            }
-                            onChange={
-                                this.handleInput
-                            }
-                            disabled={
-                                !this.props.edit
-                            }/>
-                    </div>
+                    <Form.Field>
+                        <b>Fecha de Ingreso <b className="text-red">*</b></b>
+                        <input type="date" 
+                            name="fecha_de_ingreso"
+                            value={history.fecha_de_ingreso}
+                            onChange={this.handleInput}
+                            disabled={!this.props.edit}
+                        />
+                    </Form.Field>
 
-                    <div className="form-group">
-                        <b>Meta</b>
-                        {
-                        this.props.edit ? <select name="meta_id" className="form-control"
-                            value={
-                                history.meta_id
-                            }
-                            onChange={
-                                this.handleInput
-                            }
-                            disabled={
-                                !this.props.edit
-                        }>
-                            <option value="">Select. Meta</option>
-                            {
-                            metas && metas.map(obj => <option key={
-                                    `afp-item-${
-                                        obj.id
-                                    }`
-                                }
-                                value={
-                                    obj.id
-                            }>
-                                {
-                                obj.metaID
-                            }.-{
-                                obj.meta
-                            } </option>)
-                        } </select> : <input type="text" className="form-control" name="meta_id"
-                            disabled={true}
-                            value={
-                                `${
-                                    history.meta && history.meta.metaID
-                                }.-${
-                                    history.meta && history.meta.meta
-                                }`
-                            }/>
-                    } </div>
-
-                    <div className="form-group">
+                    <Form.Field>
+                        <b>Meta <b className="text-red">*</b></b>
+                        <Show condicion={this.props.edit}>
+                            <Select
+                                options={parseOptions(metas, ['sel-meta', '', 'Select. Meta'], ['id', 'id', 'metaID'])}
+                                placeholder="Select. Meta"
+                                value={history.meta_id}
+                                name="meta_id"
+                                onChange={this.handleSelect}
+                            />
+                        </Show>
+                        <Show condicion={!this.props.edit}>
+                            <input type="text" name="meta_id"
+                                disabled={true}
+                                value={`${history.meta && history.meta.metaID}.-${history.meta && history.meta.meta}`}
+                            />
+                        </Show>
+                    </Form.Field>
+                    
+                    <Form.Field>
                         <b>Planilla</b>
-                        <input type="text" className="form-control"
-                            value={
-                                history.planilla && history.planilla.descripcion
-                            }
-                            disabled={true}/>
-                    </div>
-
-                </div>
-
-                <div className="col-md-3">
-                    <div className="form-group">
-                        <b>Tipo de AFP</b>
-                        {
-                        this.props.edit ? <select name="type_afp_id" className="form-control"
-                            value={
-                                history.type_afp_id
-                            }
-                            onChange={
-                                this.handleInput
-                            }
-                            disabled={
-                                !this.props.edit
-                        }>
-                            <option value="">Select. Tipo de AFP</option>
-                            {
-                            type_afps && type_afps.map(obj => <option key={
-                                    `afp-item-${
-                                        obj.id
-                                    }`
-                                }
-                                value={
-                                    obj.id
-                            }>
-                                {
-                                obj.descripcion
-                            } </option>)
-                        } </select> : <input type="text" className="form-control"
+                        <input type="text"
+                            value={history.planilla && history.planilla.descripcion}
                             disabled={true}
-                            name="type_afp_id"
-                            value={
-                                history.type_afp && history.type_afp.descripcion
-                            }/>
-                    } </div>
-
-                    <div className="form-group">
-                        <b>Fecha de Cese</b>
-                        <input type="date" className="form-control" name="fecha_de_cese"
-                            value={
-                                history.fecha_de_cese
-                            }
-                            onChange={
-                                this.handleInput
-                            }
-                            disabled={
-                                !this.props.edit
-                            }/>
-                    </div>
-
-                    <div className="form-group">
-                        <b>Escuela</b>
-                        <input type="text" className="form-control" name="escuela"
-                            value={
-                                history.escuela
-                            }
-                            onChange={
-                                this.handleInput
-                            }
-                            disabled={
-                                !this.props.edit
-                            }/>
-                    </div>
-
-                    <div className="form-group">
-                        <b>Cargo</b>
-                        {
-                        this.props.edit ? <select name="cargo_id" className="form-control"
-                            value={
-                                history.cargo_id
-                            }
-                            onChange={
-                                this.handleInput
-                            }
-                            disabled={
-                                !this.props.edit
-                        }>
-                            <option value="">Select. Cargo</option>
-                            {
-                            cargos && cargos.map(obj => <option key={
-                                    `cargo-item-${
-                                        obj.id
-                                    }`
-                                }
-                                value={
-                                    obj.id
-                            }>
-                                {
-                                obj.descripcion
-                            } </option>)
-                        } </select> : <input type="text" className="form-control"
-                            value={
-                                history.cargo && history.cargo.descripcion
-                            }
-                            disabled={true}/>
-                    } </div>
+                        />
+                    </Form.Field>
 
                 </div>
 
                 <div className="col-md-3">
-                    <div className="form-group">
+
+                    <Form.Field>
+                        <b>Tipo de AFP</b>
+                        <Show condicion={this.props.edit}>
+                            <Select
+                                options={parseOptions(type_afps, ['sel-tipo-afp', '', 'Select. Tip. AFP'], ['id', 'id', 'descripcion'])}
+                                placeholder="Select. Tip. AFP"
+                                value={history.type_afp_id ? history.type_afp_id : ''}
+                                name="type_afp_id"
+                                onChange={this.handleSelect}
+                            />
+                        </Show>
+                        <Show condicion={!this.props.edit}>
+                            <input type="text"
+                                placeholder="Tip. AFP"
+                                disabled={true}
+                                name="type_afp_id"
+                                value={history.type_afp && history.type_afp.descripcion}
+                            />
+                        </Show>
+                    </Form.Field>
+
+                    <Form.Field>
+                        <b>Fecha de Cese</b>
+                        <input type="date" 
+                            name="fecha_de_cese"
+                            value={history.fecha_de_cese ? history.fecha_de_cese : ''}
+                            onChange={this.handleInput}
+                            disabled={!this.props.edit}
+                        />
+                    </Form.Field>
+
+                    <Form.Field>
+                        <b>Escuela</b>
+                        <input type="text" 
+                            name="escuela"
+                            value={history.escuela ? history.escuela : ''}
+                            onChange={this.handleInput}
+                            disabled={!this.props.edit}
+                        />
+                    </Form.Field>
+
+                    <Form.Field>
+                        <b>Cargo <b className="text-red">*</b></b>
+                        <Show condicion={this.props.edit}>
+                            <Select
+                                options={parseOptions(cargos, ['sel-cargo', '', 'Select. Cargo'], ['id', 'id', 'descripcion'])}
+                                placeholder="Select. Cargo"
+                                value={history.cargo_id}
+                                name="cargo_id"
+                                onChange={this.handleSelect}
+                            />
+                        </Show>
+                        <Show condicion={!this.props.edit}>
+                            <input type="text" 
+                                value={history.cargo && history.cargo.descripcion}
+                                disabled={true}
+                            />
+                        </Show>
+                    </Form.Field>
+
+                </div>
+
+                <div className="col-md-3">
+                    <Form.Field>
                         <b>N° CUSSP</b>
-                        <input type="text" name="numero_de_cussp" className="form-control" min="10"
-                            value={
-                                history.numero_de_cussp
-                            }
-                            onChange={
-                                this.handleInput
-                            }
-                            disabled={
-                                !this.props.edit
-                            }/>
-                    </div>
+                        <input type="text" 
+                            name="numero_de_cussp"  
+                            min="8"
+                            value={history.numero_de_cussp ? history.numero_de_cussp : ''}
+                            onChange={this.handleInput}
+                            disabled={!this.props.edit}
+                        />
+                    </Form.Field>
 
-                    <div className="form-group">
+                    <Form.Field>
                         <b>N° Autogenerado</b>
-                        <input type="text" name="numero_de_essalud" className="form-control"
-                            value={
-                                history.numero_de_essalud
-                            }
-                            onChange={
-                                this.handleInput
-                            }
-                            disabled={
-                                !this.props.edit
-                            }/>
-                    </div>
+                        <input type="text" 
+                            name="numero_de_essalud"
+                            value={history.numero_de_essalud ? history.numero_de_essalud : ''}
+                            onChange={this.handleInput}
+                            disabled={!this.props.edit}
+                        />
+                    </Form.Field>
 
-                    <div className="form-group">
+                    <Form.Field>
                         <b>Perfil Trabajador</b>
-                        <input type="text" name="perfil" className="form-control"
-                            value={
-                                history.perfil
-                            }
-                            onChange={
-                                this.handleInput
-                            }
-                            disabled={
-                                !this.props.edit
-                            }/>
-                    </div>
+                        <input type="text" 
+                            name="perfil"
+                            value={history.perfil}
+                            onChange={this.handleInput}
+                            disabled={!this.props.edit}
+                        />
+                    </Form.Field>
 
-                    <div className="form-group">
+                    <Form.Field>
                         <b>Categoría</b>
-                        <input type="text" className="form-control"
+                        <input type="text"
                             disabled={true}
                             name="categoria_id"
-                            value={
-                                history.categoria && history.categoria.nombre
-                            }/>
-                    </div>
+                            value={history.categoria && history.categoria.descripcion}
+                        />
+                    </Form.Field>
                 </div>
 
                 <div className="col-md-3">
-                    <div className="form-group">
+                    <Form.Field>
                         <b>Fecha de Afiliación</b>
-                        <input type="date" className="form-control" name="fecha_de_afiliacion"
-                            value={
-                                history.fecha_de_afiliacion
-                            }
-                            onChange={
-                                this.handleInput
-                            }
-                            disabled={
-                                !this.props.edit
-                            }/>
-                    </div>
+                        <input type="date" 
+                            name="fecha_de_afiliacion"
+                            value={history.fecha_de_afiliacion ? history.fecha_de_afiliacion : ''}
+                            onChange={this.handleInput}
+                            disabled={!this.props.edit}
+                        />
+                    </Form.Field>
 
-                    <div className="form-group">
+                    <Form.Field>
                         <b>Plaza</b>
-                        <input type="text" name="plaza" className="form-control"
-                            value={
-                                history.plaza
-                            }
-                            onChange={
-                                this.handleInput
-                            }
-                            disabled={
-                                !this.props.edit
-                            }/>
-                    </div>
+                        <input type="text" 
+                            name="plaza"
+                            value={history.plaza ? history.plaza : ''}
+                            onChange={this.handleInput}
+                            disabled={!this.props.edit}
+                        />
+                    </Form.Field>
 
-                    <div className="form-group">
+                    <Form.Field>
                         <b>P.A.P</b>
-                        <input type="text" name="pap" className="form-control"
-                            value={
-                                history.pap
-                            }
-                            onChange={
-                                this.handleInput
-                            }
-                            disabled={
-                                !this.props.edit
-                            }/>
-                    </div>
+                        <input type="text" 
+                            name="pap"
+                            value={history.pap}
+                            onChange={this.handleInput}
+                            disabled={!this.props.edit}
+                        />
+                    </Form.Field>
 
-                    <div className="form-group">
+                    <Form.Field>
                         <b>Ext. Presupuestal</b>
-                        <input type="text" name="pap" className="form-control"
-                            value={
-                                history.cargo && history.cargo.ext_pptto
-                            }
-                            onChange={
-                                this.handleInput
-                            }
-                            disabled={
-                                !this.props.edit
-                            }/>
-                    </div>
+                        <input type="text" 
+                            value={history.cargo && history.cargo.ext_pptto}
+                            disabled={true}
+                        />
+                    </Form.Field>
                 </div>
 
-                <div className="col-md-9">
-                    <b>Observación</b>
-                    <textarea name="observacion" className="form-control"
-                        style={
-                            {width: "100%"}
-                        }
-                        rows="8"
-                        value={
-                            history.observacion
-                        }
-                        onChange={
-                            this.handleInput
-                        }
-                        disabled={
-                            !this.props.edit
-                        }/>
+                <div className="col-md-9 mt-2">
+                    <Form.Field>
+                        <b>Observación</b>
+                        <textarea 
+                            name="observacion" 
+                            style={{width: "100%"}}
+                            rows="8"
+                            value={history.observacion ? history.observacion : ''}
+                            onChange={this.handleInput}
+                            disabled={!this.props.edit}
+                        />
+                    </Form.Field>
                 </div>
-            </form>
+
+                <div className="col-md-3 mt-2">
+                    <Form.Field>
+                        <b>Prima Seguros</b>
+                        <Select
+                            options={[
+                                {key: "n", value: 0, text: "No Afecto"},
+                                {key: "a", value: 1, text: "Afecto"}
+                            ]}
+                            placeholder="Select. Prima Seguro"
+                            value={history.prima_afecto & history.prima_afecto}
+                            name="prima_afecto"
+                            onChange={this.handleSelect}
+                            disabled={!this.props.edit}
+                        />
+                    </Form.Field>
+                </div>
+            </div>
         )
     }
 

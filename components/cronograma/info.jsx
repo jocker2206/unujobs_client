@@ -1,17 +1,15 @@
 import React, { Component, Fragment } from 'react';
 import Modal from '../modal';
-import { Card, Row, Button } from 'react-bootstrap';
-import { unujobs } from '../../services/urls';
-import axios from 'axios';
+import { Card, Row } from 'react-bootstrap';
+import { authentication } from '../../services/apis';
 import atob from 'atob';
-import { Tab } from '../Utils';
 import Swal from 'sweetalert2';
-import Spinner from '../../components/spinner';
 import { CSVLink } from "react-csv";
-import Work from './work';
-import Afectacion from './afectacion';
-import Remuneracion from './Remuneracion';
-import Descuento from './Descuento';
+import { parseOptions } from '../../services/utils';
+import Show from '../../components/show';
+import TabCronograma from './TabCronograma';
+import { Form, Button, Input, Select, Icon, Confirm } from 'semantic-ui-react';
+
 
 export default class Info extends Component {
 
@@ -40,17 +38,7 @@ export default class Info extends Component {
             cargos: [],
             categorias: [],
             bancos: [],
-            current: "general",
             send: false,
-            navs: [
-                { id: 1, name: "Datos Generales", key: "general", active: true },
-                { id: 2, name: "Afectación Presupuestal", key: "afectacion",  active: false },
-                { id: 3, name: "Remuneraciones", key: "remuneracion", active: false },
-                { id: 4, name: "Descuentos", key: "descuento", active: false },
-                { id: 5, name: "Aportación Empleador", key: "aportacion", active: false },
-                { id: 6, name: "Obligaciones Judiciales", key: "obligacion", active: false },
-                { id: 7, name: "Tasa Educacional", key: "educacional", active: false }
-            ],
             exports: {
                 click: 0,
                 loading: false,
@@ -78,7 +66,7 @@ export default class Info extends Component {
 
 
     componentWillUpdate = (nextProps, nextState) => {
-        if (nextState.cronograma.planilla_id != this.state.cronograma.planilla_id ) this.getCargos(nextState);
+        if (nextState.cronograma.planilla_id != this.state.cronograma.planilla_id) this.getCargos(nextState);
         if (nextState.cargo_id != "" && nextState.cargo_id != this.state.cargo_id) this.getCategorias(nextState);
         if (nextState.cargo_id == "" && nextState.cargo_id != this.state.cargo_id) this.setState({ categoria_id: "", categorias: [] });
         if (nextProps.show != this.props.show && nextProps.show && !Object.keys(nextState.historial).length) this.getCronograma(nextProps, nextState);
@@ -87,23 +75,24 @@ export default class Info extends Component {
 
     getPlanillas = async () => {
         this.setState({ loading: true });
-        await axios.get(`${unujobs}/planilla`)
+        await authentication.get(`planilla`)
         .then(res => {
-            this.setState({ planillas: res.data });
+            let planillas = res.data ? res.data : []
+            this.setState({ planillas });
         }).catch(err => console.log(err.message));
         this.setState({ loading: false });
     }
 
 
     getAFPs = () => {
-        axios.get(`${unujobs}/cronograma/${this.state.cronograma_id}/afp`)
+        authentication.get(`cronograma/${this.state.cronograma_id}/afp`)
         .then(res => this.setState({ afps: res.data }))
         .catch(err => console.log(err.message));
     }
 
 
     getBancos = () => {
-        axios.get(`${unujobs}/banco`)
+        authentication.get(`banco`)
         .then(res => this.setState({ bancos: res.data }))
         .catch(err => console.log(err.message));
     }
@@ -114,17 +103,8 @@ export default class Info extends Component {
         this.setState({ [name]: value });
     }
 
-
-    handleNavs = async (e, obj, index) => {
-        if (!this.state.edit) {
-            let newNavs = this.state.navs;
-            await newNavs.map(nav => nav.active = false);
-            obj.active = true;
-            newNavs[index] = obj;
-            this.setState({ navs: newNavs, current: obj.key });  
-        } else {
-            this.getAlert();
-        }
+    handleSelect = (e, { name, value }) => {
+        this.setState({ [name]: value });
     }
 
 
@@ -171,7 +151,7 @@ export default class Info extends Component {
             let { page, cargo_id, categoria_id, afp_id, like, exports } = state;
             let id = query.info ? atob(query.info) : "";
             let params = `page=${page}&cargo_id=${cargo_id}&categoria_id=${categoria_id}&afp_id=${afp_id}&like=${like}&export=${exports.click}`;
-            await axios.get(`${unujobs}/cronograma/${id}?${params}`)
+            await authentication.get(`cronograma/${id}?${params}`)
             .then(async res => {
                 if (exports.click) {
                     let { headers, content } = res.data;
@@ -207,7 +187,7 @@ export default class Info extends Component {
     sendEmail = async () => {
         let  { historial } = this.state;
         this.setState({ block: true, send: true });
-        await axios.post(`${unujobs}/historial/${historial.id}/send_boleta`)
+        await authentication.post(`historial/${historial.id}/send_boleta`)
         .then(res => {
             let { success, message } = res.data;
             let icon = success ? 'success' : 'error';
@@ -221,7 +201,7 @@ export default class Info extends Component {
 
     getCargos = (state) => {
         let { cronograma } = state;
-        axios.get(`${unujobs}/cronograma/${cronograma.id}/cargo`)
+        authentication.get(`cronograma/${cronograma.id}/cargo`)
         .then(async res => {
             this.setState({ cargos: res.data });
         }).catch(err =>  console.log(err.message));
@@ -230,7 +210,7 @@ export default class Info extends Component {
 
     getCategorias = (state) => {
         let { cargo_id } = state;
-        axios.get(`${unujobs}/cargo/${cargo_id}`)
+        authentication.get(`cargo/${cargo_id}`)
         .then(async res => {
             let { categorias } = res.data;
             this.setState({ categorias: categorias ? categorias : [] });
@@ -243,7 +223,7 @@ export default class Info extends Component {
         if (!edit) {
             if (page < last_page) {
                 await this.setState(state => ({ page: state.page + 1 }));
-                this.getCronograma(this.props, this.state);
+                await this.getCronograma(this.props, this.state);
             }else {
                 Swal.fire({ icon: "warning", text: "No hay más registros" });
             }
@@ -285,6 +265,20 @@ export default class Info extends Component {
         });  
     }
 
+    sentEnd = (e) => {
+        this.setState({ loading: false, send: false });
+    }
+
+    handleConfirm = async (e) => {
+        let { value } = await Swal.fire({ 
+            icon: 'warning',
+            text: "¿Deseas guardar los cambios?",
+            confirmButtonText: "Continuar",
+            showCancelButton: true
+        });
+        if (value) this.setState({ loading: true, send: true });
+    }
+
     render() {
 
         let { show } = this.props;
@@ -297,8 +291,10 @@ export default class Info extends Component {
             afp_id 
         } = this.state;
 
-        let filname = `${historial.planilla && historial.planilla.descripcion}_${cronograma.mes}_${cronograma.year}${cronograma.adicional ? `_adicional_${cronograma.numero}` : ''}`;
         
+
+        let filname = `${historial.planilla && historial.planilla.descripcion}_${cronograma.mes}_${cronograma.year}${cronograma.adicional ? `_adicional_${cronograma.numero}` : ''}`;
+
         return (
             <Modal show={show}
                 isClose={this.close}
@@ -307,310 +303,276 @@ export default class Info extends Component {
                 titulo={`INFORMACIÓN DE "${historial && historial.work ? historial.work.nombre_completo : 'NO HAY TRABAJADOR DISPONIBLE'}"`}
             >
                     <Card.Body style={{ height: "85%", overflowY: "auto" }}>
-                        <Row>
-                            <div className="col-md-3">
-                                <input type="text" 
-                                    className={`form-control ${this.state.like ? 'border-dark text-dark' : ''}`}
-                                    disabled={loading || this.state.edit || this.state.block}
-                                    value={this.state.like}
-                                    onChange={this.handleInput}
-                                    name="like"
-                                    placeholder="Buscar por Nombre Completo o N° de documento"
-                                    autoComplete="false"
-                                />   
-                            </div>
+                        <Form>
+                            <Row>
+                                <div className="col-md-3">
+                                    <Form.Field> 
+                                        <input type="search" 
+                                            className={`${this.state.like ? 'border-dark text-dark' : ''}`}
+                                            disabled={loading || this.state.edit || this.state.block}
+                                            value={this.state.like}
+                                            onChange={this.handleInput}
+                                            name="like"
+                                            placeholder="Buscar por Nombre Completo o N° de documento"
+                                        />  
+                                    </Form.Field>
+                                </div>
 
-                            <div className="col-md-2 mb-1">
-                                <select name="cargo_id" 
-                                    className={`form-control ${cargo_id ? 'border-dark text-dark' : ''}`}
-                                    value={cargo_id}
-                                    onChange={this.handleInput}
-                                    disabled={loading || this.state.edit || this.state.block}
-                                >
-                                    <option value="">Select. Cargo</option>
-                                    {cargos && cargos.map(obj => 
-                                        <option key={`cargo-${obj.id}`}
-                                            value={obj.id}
+                                <div className="col-md-2 mb-1">
+                                    <Select placeholder='Select. Cargo' 
+                                        options={parseOptions(cargos, ['sel-car', '', 'Select. Cargo'], ['id', 'id', 'descripcion'])} 
+                                        disabled={loading || this.state.edit || this.state.block}
+                                        value={cargo_id}
+                                        name="cargo_id"
+                                        onChange={this.handleSelect}
+                                        wrapSelection={false}
+                                    />
+                                </div>
+                                
+                                <div className="col-md-2 mb-1">
+                                    <Select placeholder='Select. Categoría' 
+                                        options={parseOptions(categorias, ['sel-cat', '', 'Select. Categoría'], ['id', 'id', 'nombre'])}
+                                        disabled={loading || this.state.edit || this.state.block}
+                                        value={categoria_id}
+                                        name="categoria_id"
+                                        onChange={this.handleSelect}
+                                    />
+                                </div>
+                                
+                                <div className="col-md-2 mb-1">
+                                    <Select placeholder='Select. AFP' 
+                                        options={parseOptions(afps, ['sel-afp', '', 'Select. AFP'], ['id', 'id', 'nombre'])} 
+                                        disabled={loading || this.state.edit || this.state.block}
+                                        value={afp_id}
+                                        name="afp_id"
+                                        onChange={this.handleSelect}
+                                    />
+                                </div>
+                                
+                                <div className="col-md-2 mb-1">
+                                    <Show condicion={exports.click}>
+                                        <Button color="red"
+                                            disabled={exports.loading}
+                                            fluid
+                                            onClick={(e) => {
+                                                let newExport = Object.assign({}, exports);
+                                                newExport.click = 0;
+                                                this.setState({ exports: newExport, block: false });
+                                            }}
                                         >
-                                            {obj.descripcion}
-                                        </option>    
-                                    )}
-                                </select>
-                            </div>
-                            <div className="col-md-2 mb-1">
-                                <select name="categoria_id" 
-                                    className={`form-control ${categoria_id ? 'border-dark text-dark' : ''}`}
-                                    value={categoria_id}
-                                    onChange={this.handleInput}
-                                    disabled={loading || this.state.edit || this.state.block}
-                                >
-                                    <option value="">Select. Categoría</option>
-                                    {categorias && categorias.map(obj => 
-                                        <option key={`categoria-${obj.id}`}
-                                            value={obj.id}
+                                            <Icon name="delete"/> Limpiar
+                                        </Button>
+                                    </Show>
+                                    <Show condicion={!exports.click}>
+                                        <Button color="black"
+                                            fluid
+                                            onClick={this.readCronograma}
+                                            title="Realizar Búsqueda"
+                                            disabled={loading || this.state.edit || this.state.block}
                                         >
-                                            {obj.nombre}
-                                        </option>    
-                                    )}
-                                </select>
-                            </div>
-                            <div className="col-md-2 mb-1">
-                                <select name="afp_id" 
-                                    className={`form-control ${afp_id ? 'border-dark text-dark' : ''}`}
-                                    value={afp_id}
-                                    onChange={this.handleInput}
-                                    disabled={loading || this.state.edit || this.state.block}
-                                >
-                                    <option value="">Select. AFP</option>
-                                    {afps && afps.map(obj => 
-                                        <option key={`categoria-${obj.id}`}
-                                            value={obj.id}
-                                        >
-                                            {obj.nombre}
-                                        </option>    
-                                    )}
-                                </select>
-                            </div>
-                            <div className="col-md-2 mb-1">
-                                {
-                                    exports.click 
-                                        ?   <button className="btn btn-danger btn-block"
-                                                disabled={exports.loading}
-                                                onClick={(e) => {
-                                                    let newExport = Object.assign({}, exports);
-                                                    newExport.click = 0;
-                                                    this.setState({ exports: newExport, block: false });
-                                                }}
-                                            >
-                                                <i className="fas fa-times"></i> Limpiar
-                                            </button>
-                                        :   <button className="btn btn-dark btn-block"
-                                                onClick={this.readCronograma}
-                                                title="Realizar Búsqueda"
-                                                disabled={loading || this.state.edit || this.state.block}
-                                            >
-                                                <i className="fas fa-filter"></i> Filtrar
-                                            </button>
-                                }
-                            </div>
+                                            <Icon name="filter"/> Filtrar
+                                        </Button>
+                                    </Show>
+                                </div>
 
-                            { this.state.total && !this.state.block
-                                ?   <div className="col-md-1 mb-1">
-                                        {
-                                            exports.click 
-                                            ?   exports.loading
-                                                ?   <button className="btn-info btn btn-block"
-                                                        disabled={exports.loading}
-                                                    >
-                                                        <i className="fas fa-upload"></i>
-                                                    </button>
-                                                :   <CSVLink data={exports.content} 
-                                                        headers={exports.headers} 
-                                                        target="__blank"
-                                                        className="btn btn-info btn-block"
-                                                        filename={`${filname}.xlsx`}
-                                                    >
-                                                        <i className="fas fa-download"></i>
-                                                    </CSVLink>
-                                            :   <button className="btn btn-success btn-block"
-                                                    onClick={this.getExport}
-                                                    title="Realizar exportación en CSV del Resultado."
-                                                    disabled={loading || this.state.edit}
+                                <Show condicion={this.state.total && !this.state.block}>
+                                    <div className="col-md-1 mb-1">
+                                        <Show condicion={exports.click}>
+                                            <Show condicion={exports.loading}>
+                                                <Button color="green"
+                                                    basic
+                                                    loading={exports.loading}
+                                                    disabled={exports.loading}
+                                                    fluid
                                                 >
-                                                    <i className="fas fa-file-excel"></i> Exp.
-                                                </button>
-                                        }
+                                                    <i className="fas fa-upload"></i>
+                                                </Button>
+                                            </Show>
+                                        </Show>
+                                        <Show condicion={!exports.click}>
+                                            <Button color="green"
+                                                basic
+                                                onClick={this.getExport}
+                                                title="Realizar exportación en CSV del Resultado."
+                                                disabled={loading || this.state.edit}
+                                                fluid
+                                            >
+                                                <i className="fas fa-file-excel"></i>
+                                            </Button>
+                                        </Show>
                                     </div>
-                                : null
-                            }
+                                </Show>
 
-                            <div className="col-md-12">
-                                <Tab navs={this.state.navs}
-                                    onClick={this.handleNavs}
-                                />
-                            </div>
-                            
-                            {loading 
-                                ?   <div className="col-md-12 mt-3 text-center">
-                                        <Spinner/>
+                                <Show condicion={this.state.total && this.state.block && !exports.loading}>
+                                    <div className="col-md-1">
+                                        <CSVLink data={exports.content} 
+                                            headers={exports.headers} 
+                                            target="__blank"
+                                            className="ui green button fluid"
+                                            filename={`${filname}.xlsx`}
+                                        >
+                                            <i className="fas fa-download"></i>
+                                        </CSVLink>
                                     </div>
-                                :   <div className="col-md-12 mt-3">
-                                        {this.state.current == 'general' 
-                                            ?   <Work 
-                                                    bancos={this.state.bancos}
-                                                    historial={historial}
-                                                    edit={this.state.edit}
-                                                /> 
-                                            : null}
-                                        {this.state.current == 'afectacion' 
-                                            ?   <Afectacion 
-                                                    edit={this.state.edit}
-                                                    historial={historial}
-                                                /> 
-                                            : null}
-                                        {this.state.current == 'remuneracion' 
-                                            ?   <Remuneracion
-                                                    edit={this.state.edit}
-                                                    historial={historial}
-                                                /> 
-                                            : null}
-                                        {this.state.current == 'descuento' 
-                                            ?   <Descuento
-                                                    edit={this.state.edit}
-                                                    historial={historial}
-                                                /> 
-                                            : null}
+                                </Show>
+                                
+                                <Show condicion={this.state.total}>
+                                    <TabCronograma
+                                        historial={historial}
+                                        bancos={this.state.bancos}
+                                        edit={this.state.edit}
+                                        loading={this.state.loading}
+                                        send={this.state.send}
+                                        total={this.state.total}
+                                        sentEnd={this.sentEnd}
+                                        menu={{ secondary: true, pointing: true }}
+                                    />  
+                                </Show>          
+                                
+                                <Show condicion={!this.state.total}>
+                                    <div className="w-100 text-center">
+                                        <h4 className="mt-5">No se encotró trabajadores</h4>
                                     </div>
-                            }
-                        </Row>
+                                </Show>                    
+                            </Row>
+                        </Form>
                     </Card.Body>
                     <Card.Footer style={{ position: "absolute", background: "#fff", bottom: "0px", width: "100%", left: "0px" }}>
                         <Card.Body>
-                            <Row className="justify-content-between">
-                                
-                                <div className="col md-8">
-                                    <div className="row">
-                                        <div className="col-md-2 mb-1">
-                                            <input type="number" 
-                                                className="form-control" 
-                                                name="year" 
-                                                placeholder="Año"
-                                                value={cronograma.year}
-                                                disabled={true}
-                                            />
-                                        </div>
-
-                                        <div className="col-md-2 mb-1">
-                                            <input type="number" 
-                                                className="form-control" 
-                                                name="mes" 
-                                                placeholder="Mes"
-                                                value={cronograma.mes}
-                                                disabled={true}
-                                            />
-                                        </div>
-
-                                        <div className="col-md-3 mb-1">
-                                            <select name="planilla_id" 
-                                                className="form-control"
-                                                value={cronograma.planilla_id}
-                                                disabled={true}
-                                            >
-                                                <option value="">Select. Planilla</option>
-                                                {planillas.map(obj => 
-                                                    <option key={`planilla-${obj.id}`}
-                                                        value={obj.id}
-                                                    >
-                                                        {obj.descripcion}
-                                                    </option>    
-                                                )}
-                                            </select>
-                                        </div>
-
-                                        <div className="col-md-2 mb-1">
-                                            <div className="form-control">
-                                                { cronograma.adicional ? '' : 'No' } Adicional
-                                                { cronograma.adicional 
-                                                    ?  <Fragment>
-                                                            <i className="text-primary fas fa-arrow-right ml-1"></i> {cronograma.numero}
-                                                        </Fragment>
-                                                    : '' 
-                                                }
+                            <Form>
+                                <Row className="justify-content-between"> 
+                                    <div className="col md-8">
+                                        <div className="row">
+                                            <div className="col-md-2 mb-1">
+                                                <Form.Field>
+                                                    <input type="number"  
+                                                        name="year" 
+                                                        placeholder="Año"
+                                                        value={cronograma.year}
+                                                        readOnly
+                                                    />
+                                                </Form.Field>
                                             </div>
-                                        </div>
 
-                                        <div className="col-md-2 mb-1">
-                                            { this.state.total 
-                                                ?   <span className="btn btn-dark">
+                                            <div className="col-md-2 mb-1">
+                                                <Form.Field>
+                                                    <input type="number" 
+                                                        name="mes" 
+                                                        placeholder="Mes"
+                                                        value={cronograma.mes}
+                                                        readOnly
+                                                    />
+                                                </Form.Field>
+                                            </div>
+
+                                            <div className="col-md-3 mb-1">
+                                                <Select placeholder='Select. Planilla' 
+                                                    options={parseOptions(planillas, ['sel-afp', '', 'Select. Planilla'], ['id', 'id', 'descripcion'])} 
+                                                    value={cronograma.planilla_id}
+                                                    name="planilla_id"
+                                                />
+                                            </div>
+
+                                            <Show condicion={cronograma.adicional}>
+                                                <div className="col-md-2 mb-1">
+                                                    <Form.Field>
+                                                        <input type="text" 
+                                                            value={`Adicional ${cronograma.numero}`}
+                                                            readOnly
+                                                        />
+                                                    </Form.Field>
+                                                </div>
+                                            </Show>
+
+                                            <div className="col-md-2 mb-1">
+                                                <Show condicion={this.state.total}>
+                                                    <Button color="black"
+                                                        fluid
+                                                    >
                                                         {this.state.page} de {this.state.total}
-                                                    </span> 
-                                                :   <button className="btn btn-danger btn-block"
+                                                    </Button>
+                                                </Show>
+                                                <Show condicion={!this.state.total}>
+                                                    <Button color="red"
                                                         disabled={loading}
                                                         onClick={this.clearSearch}
+                                                        fluid
                                                     >
                                                         <i className="fas fa-trash"></i> Limpiar
-                                                    </button>
-                                                }
+                                                    </Button>
+                                                </Show>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                                
-                                <div className="col-md-4 text-right">
-                                    {
-                                        this.state.total && cronograma.estado
-                                        ?   <Button size="md"
-                                                className={`mr-1 btn-${this.state.edit ? 'danger' : 'warning'}`}
-                                                disabled={loading || this.state.block}
+                                    
+                                    <div className="col-md-4 text-right">
+                                        <Show condicion={this.state.total && cronograma.estado}>
+                                            <Button color={this.state.edit ? 'red' : 'teal'}
+                                                disabled={loading || this.state.block || this.state.send}
                                                 onClick={(e) => this.setState(state => ({ edit: !state.edit }))}
                                             >
-                                                <i className={`fas fa-${this.state.edit ? 'times' : 'pencil-alt'} mr-1`}></i>
-                                                { this.state.edit ? 'Cancelar' : 'Editar' }
+                                                <Icon name={this.state.edit ? 'cancel' : 'pencil'}/> { this.state.edit ? 'Cancelar' : 'Editar' }
                                             </Button>
-                                        :   null
-                                    }
+                                        </Show>
 
-
-                                    {
-                                        this.state.total && !cronograma.estado
-                                        ?   <Button size="md"
-                                                className={`mr-1 btn-warning`}
+                                        <Show condicion={this.state.total && !cronograma.estado}>
+                                            <Button
+                                                color="orange"
                                                 disabled={loading || this.state.block}
                                                 onClick={this.sendEmail}
                                             >
-                                                <i className="fas fa-envelope-open-text"></i> { this.state.send ? 'Enviando...' : 'Enviar Email' }
+                                                <Icon name="send"/> { this.state.send ? 'Enviando...' : 'Enviar Email' }
                                             </Button>
-                                        :   null
-                                    }
+                                        </Show>
 
-
-                                    {   !this.state.edit && this.state.total
-                                        ?   <Button size="md" 
-                                                className="mr-1 btn-dark"
+                                        <Show condicion={!this.state.edit && this.state.total}>
+                                            <Button
+                                                color="black"
                                                 disabled={loading || this.state.edit || this.state.block}
                                                 onClick={this.readCronograma}
                                             >
                                                 Pág N° 1
                                             </Button>   
-                                        : null
-                                    }
+                                        </Show>
 
-                                    {   !this.state.edit && this.state.total
-                                        ?   <Button size="md" 
-                                                className="mr-1 btn-dark"
+                                        <Show condicion={!this.state.edit && this.state.total}>
+                                            <Button  
+                                                color="black"
                                                 disabled={loading || this.state.edit || this.state.block}
                                                 onClick={this.previus}
                                             >
-                                                <i className="fas fa-arrow-left"></i>
-                                            </Button>   
-                                        : null
-                                    }
+                                                <Icon name="triangle left"/>
+                                            </Button>
+                                        </Show>
 
-                                    {   !this.state.edit && this.state.total
-                                        ?   <Button size="md" 
-                                                className="mr-1 btn-dark"
+                                        <Show condicion={!this.state.edit && this.state.total}>
+                                            <Button 
+                                                color="black"
                                                 disabled={loading || this.state.edit || this.state.block}
                                                 onClick={this.next}
                                             >
-                                                <i className="fas fa-arrow-right"></i>
+                                                <Icon name="triangle right"/>
                                             </Button>
-                                        :   null
-                                    }
+                                        </Show>
 
-                                    { this.state.edit
-                                        ?   <Button size="md"
+                                        <Show condicion={this.state.edit}>
+                                            <Button
+                                                color="blue"
+                                                loading={this.state.send}
                                                 disabled={loading || !this.state.edit || this.state.block}
+                                                onClick={this.handleConfirm}
                                             >
-                                                <i className="fas fa-sync mr-1"></i>
-                                                Actualizar
+                                                <Icon name="save"/> Guardar
                                             </Button>
-                                        :  null
-                                    }
-                                </div>
-                            </Row>
+                                        </Show>
+                                    </div>
+                                </Row>
+                            </Form>
                         </Card.Body>
                     </Card.Footer>
             </Modal>    
         )
+        
     }
 
 }

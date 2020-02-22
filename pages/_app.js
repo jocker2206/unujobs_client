@@ -1,89 +1,105 @@
 import React, { Fragment } from 'react'
-import App from 'next/app'
 import Head from 'next/head'
+import App from 'next/app';
 import Sidebar from '../components/sidebar';
-import { getToken } from '../services/auth';
 import Navbar from '../components/navbar';
 import { Content, Body } from '../components/Utils';
+import Cookies from 'js-cookie';
+import { AUTH } from '../services/auth';
+import { getAuth, authsActionsTypes } from '../storage/actions/authsActions';
+
+// config redux
+import { Provider } from 'react-redux';
+import withRedux from 'next-redux-wrapper';
+import initsStore from '../storage/store';
 
 class MyApp extends App {
 
-  constructor(props) {
-    super(props);
-    this.state = {
-      logging: false
-    };
+  static getInitialProps = async ({ Component, ctx, store }) => {
+    let pageProps = {};
+    // ejecutar initial de los children
+    if (Component.getInitialProps) {
+      pageProps = await Component.getInitialProps(ctx)
+    }
+    // obtener auth
+    if (await AUTH(ctx)) {
+      await ctx.store.dispatch(getAuth(ctx));
+    } else {
+      await ctx.store.dispatch({ type: authsActionsTypes.LOGOUT });
+    }
+    // page
+    return { pageProps, store, auth_token: await AUTH(ctx) };
   }
 
-  async componentDidMount() {
-    let logging = await getToken() ? true : false;
-    this.setState({ logging });
+  constructor(props) {
+    super(props);
   }
 
   render() {
-    const { Component, pageProps } = this.props
-    return <Fragment>
-      
-      
-      <Head>
-        <meta charSet="utf-8"></meta>
-        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"></meta>
-        <title>SRH</title>
-        <link rel="shortcut icon" href="/static/favicon.ico"></link>
-        <meta name="theme-color" content="#3063A0"></meta>
-        <link href="https://fonts.googleapis.com/css?family=Roboto:400,300,100,500,600,700,900" rel="stylesheet" type="text/css" />
-        <link rel="stylesheet" href="/static/css/open-iconic-bootstrap.min.css" />
-        <link rel="stylesheet" href="/static/css/all.css" />
-        <link rel="stylesheet" href="/static/css/buttons.bootstrap4.min.css"></link>
-        <link rel="stylesheet" href="/static/css/flatpickr.min.css" />
-        <link rel="stylesheet" href="/static/css/theme.min.css" data-skin="default" />
-        <link rel="stylesheet" href="/static/css/theme-dark.min.css" data-skin="dark" disabled={true} />
-        <link rel="stylesheet" href="/static/css/custom.css" />
-        <link rel="stylesheet" href="/static/css/skull.css" />
+    const { Component, pageProps, store, auth_token } = this.props
 
-        <script src="/static/js/jquery.min.js"></script>
-        <script src="/static/js/popper.min.js"></script>
-        <script src="/static/js/bootstrap.min.js"></script>
+    return  <Fragment>
+      <Provider store={store}>
+        <Head>
+          <meta charSet="utf-8"></meta>
+          <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"></meta>
+          <title>SIGA</title>
+          <link rel="shortcut icon" href="/img/logo-unu.png"></link>
+          <meta name="theme-color" content="#3063A0"></meta>
+          <link href="https://fonts.googleapis.com/css?family=Roboto:400,300,100,500,600,700,900" rel="stylesheet" type="text/css" />
+          <link rel="stylesheet" href="/css/open-iconic-bootstrap.min.css" />
+          <link rel="stylesheet" href="/css/all.css" />
+          <link rel="stylesheet" href="/css/buttons.bootstrap4.min.css"></link>
+          <link rel="stylesheet" href="/css/flatpickr.min.css" />
+          <link rel="stylesheet" href="/css/theme.min.css" data-skin="default" />
+          <link rel="stylesheet" href="/css/theme-dark.min.css" data-skin="dark" disabled={true} />
+          <link rel="stylesheet" href="/css/custom.css" />
+          <link rel="stylesheet" href="/css/skull.css" />
 
-
-        {this.state.logging ? <script src="/static/js/pace.min.js"></script> : ''}
-
-        <script src="/static/js/stacked-menu.min.js"></script>
-        <script src="/static/js/perfect-scrollbar.min.js"></script>
-        <script src="/static/js/flatpickr.min.js"></script>
-        <script src="/static/js/jquery.easypiechart.min.js"></script>
-        <script src="/static/js/Chart.min.js"></script>
-        <script src="/static/js/theme.min.js"></script>
-
-      </Head>
+          <script src="/js/jquery.min.js"></script>
+          <script src="/js/popper.min.js"></script>
+          <script src="/js/bootstrap.min.js"></script>
+          <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.2/semantic.min.css" />
 
 
-      {
-        this.state.logging ?
-          <div className="full-layout">
-            <div className="gx-app-layout ant-layout ant-layout-has-sider">
-              <div className="ant-layout">
-                <Navbar/>
-                <div className="gx-layout-content   ant-layout-content">
-                  <div className="gx-main-content-wrapper">
-                  <Sidebar/>
-                    <Content>
-                      <Body>
-                        <Component {...pageProps}/>
-                      </Body>
-                    </Content>
+          {auth_token ? <script src="/js/pace.min.js"></script> : ''}
+
+          <script src="/js/stacked-menu.min.js"></script>
+          <script src="/js/perfect-scrollbar.min.js"></script>
+          <script src="/js/flatpickr.min.js"></script>
+          <script src="/js/jquery.easypiechart.min.js"></script>
+          <script src="/js/Chart.min.js"></script>
+          <script src="/js/theme.min.js"></script>
+
+        </Head>
+
+
+        {
+          auth_token ?
+              <div className="full-layout">
+                <div className="gx-app-layout ant-layout ant-layout-has-sider">
+                  <div className="ant-layout">
+                    <Navbar/>
+                    <div className="gx-layout-content   ant-layout-content">
+                      <div className="gx-main-content-wrapper">
+                      <Sidebar/>
+                        <Content>
+                          <Body>
+                            <Component {...pageProps}/>
+                          </Body>
+                        </Content>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          </div>
-        : <Component {...pageProps}/>
-      }
+          : <Component {...pageProps}/>
+        }
       
-
+      </Provider>
 
     </Fragment>
   }
 }
 
-export default MyApp
+export default withRedux(initsStore)(MyApp);

@@ -1,28 +1,27 @@
-import React, { Component, Fragment } from "react";
+import React, { Component } from "react";
 import Navigation from "./navigation";
-import { Bearer } from "../services/auth";
-import axios from "axios";
-import { unujobs } from '../services/urls';
+import { authentication } from '../services/apis';
+import Router from 'next/router';
 
 class Sidebar extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      options: []
+      options: [],
+      pathname: "/"
     };
   }
 
   async componentDidMount() {
     this.getProfile();
+    if (typeof Router == 'object') await this.setState({ pathname: Router.pathname });
   }
 
   getProfile =  async () => {
-    axios.get(`${unujobs}/profile`, { headers: { Authorization: await Bearer() } })
+    await authentication.get(`profile`)
     .then(res => {
         this.setState({ options: res.data });
-    }).catch(err => {
-        console.log(err);
-    })
+    }).catch(err => console.log(err));
 }
 
   render() {
@@ -50,7 +49,7 @@ class Sidebar extends Component {
               <div id="dropdown-aside" className="dropdown-aside collapse">
                 <div className="pb-3">
                   <a className="dropdown-item" href="user-profile.html">
-                    <span className="dropdown-icon oi oi-person"></span> Profile
+                    <span className="dropdown-icon oi oi-person"></span> Perfil
                   </a>{" "}
                   <a className="dropdown-item" href="auth-signin-v1.html">
                     <span className="dropdown-icon oi oi-account-logout"></span>{" "}
@@ -72,10 +71,10 @@ class Sidebar extends Component {
             <div className="aside-menu overflow-hidden">
               <nav id="stacked-menu" className="stacked-menu">
                 <ul className="menu">
-                  <li className="menu-item has-active">
+                  <li className={`menu-item ${this.state.pathname == '/' ? 'has-active' : ''}`}>
                     <a href="/" className="menu-link">
-                      <span className="menu-icon fas fa-user text-success"></span>{" "}
-                      <span className="menu-text text-success">Perfil</span>
+                      <span className="menu-icon fas fa-user"></span>{" "}
+                      <span className="menu-text">Perfil</span>
                     </a>
                   </li>
                   <Navigation options={this.state.options}/>
@@ -83,7 +82,7 @@ class Sidebar extends Component {
               </nav>
             </div>
             <footer className="aside-footer border-top p-3">
-                
+
             </footer>
           </div>
         </aside>
