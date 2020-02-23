@@ -5,6 +5,7 @@ import {authentication} from '../../services/apis';
 import Router from 'next/router';
 import btoa from 'btoa';
 
+
 export default class Concepto extends Component {
 
     constructor(props) {
