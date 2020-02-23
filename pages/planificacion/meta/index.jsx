@@ -1,8 +1,7 @@
 import React, {Component, Fragment} from 'react';
 import {Button} from 'react-bootstrap';
 import Datatable from '../../../components/datatable';
-import {unujobs} from '../../../services/urls';
-import axios from 'axios';
+import {authentication} from '../../../services/apis';
 import Router from 'next/router';
 import btoa from 'btoa';
 import {BtnFloat} from '../../../components/Utils';
@@ -46,7 +45,7 @@ export default class Meta extends Component {
     getMetas = async () => {
         this.setState({loading: true});
         let {year, estado} = this.state;
-        await axios.get(`${unujobs}/meta?year=${year}&estado=${estado}`).then(res => {
+        await authentication.get(`meta?year=${year}&estado=${estado}`).then(res => {
             let {data} = res.data;
             this.setState({metas: data});
         }).catch(err => console.log(err.message));
