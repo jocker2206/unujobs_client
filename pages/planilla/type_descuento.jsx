@@ -1,8 +1,7 @@
 import React, {Component} from 'react';
 import {Button} from 'react-bootstrap';
 import Datatable from '../../components/datatable';
-import {unujobs} from '../../services/urls';
-import axios from 'axios';
+import { authentication } from '../../services/apis';
 import Router from 'next/router';
 import btoa from 'btoa';
 
@@ -38,7 +37,7 @@ export default class Concepto extends Component {
     getTypeDescuentos = async () => {
         this.setState({loading: true});
         let {estado} = this.state;
-        await axios.get(`${unujobs}/type_descuento?estado=${estado}`).then(res => {
+        await authentication.get(`type_descuento?estado=${estado}`).then(res => {
             let {data} = res.data;
             this.setState({type_descuentos: data});
         }).catch(err => console.log(err.message));

@@ -1,7 +1,7 @@
 import React, {Component, Fragment} from 'react';
 import {Button} from 'react-bootstrap';
 import Datatable from '../../components/datatable';
-import {unujobs} from '../../services/urls';
+import {authentication} from '../../services/apis';
 import axios from 'axios';
 import Router from 'next/router';
 import btoa from 'btoa';
@@ -39,7 +39,7 @@ export default class Cargo extends Component {
     getCargos = async () => {
         this.setState({loading: true});
         let {year, estado} = this.state;
-        await axios.get(`${unujobs}/cargo?estado=${estado}`).then(res => {
+        await authentication.get(`cargo?estado=${estado}`).then(res => {
             let {data} = res.data;
             this.setState({cargos: data});
         }).catch(err => console.log(err.message));

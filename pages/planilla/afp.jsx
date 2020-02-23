@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import {Button} from 'react-bootstrap';
 import Datatable from '../../components/datatable';
-import {unujobs} from '../../services/urls';
+import { authentication } from '../../services/apis';
 import axios from 'axios';
 import Router from 'next/router';
 import btoa from 'btoa';
@@ -39,7 +39,7 @@ export default class Afp extends Component {
     getAfps = async () => {
         this.setState({loading: true});
         let {estado} = this.state;
-        await axios.get(`${unujobs}/afp?estado=${estado}`).then(res => {
+        await authentication.get(`afp?estado=${estado}`).then(res => {
             let {data} = res.data;
             this.setState({afps: data});
         }).catch(err => console.log(err.message));

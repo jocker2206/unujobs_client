@@ -1,7 +1,7 @@
 {
   "name": "unujobs_client",
   "version": "1.0.0",
-  "description": "",
+  "description": "Sistema Finanaciero para Entidades Publicas",
   "main": "index.js",
   "scripts": {
     "dev": "next",

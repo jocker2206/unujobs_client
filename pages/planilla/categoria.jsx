@@ -1,8 +1,7 @@
 import React, {Component} from 'react';
 import {Button} from 'react-bootstrap';
 import Datatable from '../../components/datatable';
-import {unujobs} from '../../services/urls';
-import axios from 'axios';
+import {authentication} from '../../services/apis';
 import Router from 'next/router';
 import btoa from 'btoa';
 import Info from '../../components/cronograma/info';
@@ -39,7 +38,7 @@ export default class Categoria extends Component {
     getCategorias = async () => {
         this.setState({loading: true});
         let {estado} = this.state;
-        await axios.get(`${unujobs}/categoria?estado=${estado}`).then(res => {
+        await authentication.get(`categoria?estado=${estado}`).then(res => {
             let {data} = res.data;
             this.setState({categorias: data});
         }).catch(err => console.log(err.message));
