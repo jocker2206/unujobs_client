@@ -4,7 +4,7 @@ import Datatable from '../../../components/datatable';
 import {authentication} from '../../../services/apis';
 import Router from 'next/router';
 import btoa from 'btoa';
-import {BtnFloat} from '../../../components/Utils';
+import { BtnFloat } from '../../../components/Utils';
 
 export default class Meta extends Component {
 
