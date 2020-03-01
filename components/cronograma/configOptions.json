@@ -1,0 +1,52 @@
+[
+    { 
+        "key": "create",
+        "title": "Crear", 
+        "descripcion": "Creamos y Configuramos el Cronograma", 
+        "icon": "calendar plus outline",
+        "active": true,
+        "disabled": false,
+        "completed": false,
+        "group": "config"
+    },
+    { 
+        "key": "config_boleta",
+        "title": "Configuración", 
+        "descripcion": "Configuración de boletas", 
+        "icon": "setting",
+        "active": false,
+        "disabled": true,
+        "completed": false,
+        "group": "config"
+    },
+    { 
+        "key": "add_works",
+        "title": "Agregar Trabajadores", 
+        "descripcion": "Solo los que están habilitados y pertenescan a la planilla", 
+        "icon": "add user",
+        "active": false,
+        "disabled": true,
+        "completed": false,
+        "group": "config"
+    },
+    { 
+        "key": "add_descuentos",
+        "title": "Agregar Descuentos", 
+        "descripcion": "Solo los que están habilitados y pertenescan a la planilla", 
+        "icon": "cart arrow down",
+        "active": false,
+        "disabled": true,
+        "completed": false,
+        "group": "calc"
+    },
+    { 
+        "key": "add_aportaciones",
+        "title": "Agregar Aportaciones", 
+        "descripcion": "Agregar a cada trabajador sus aportaciones del empleador", 
+        "icon": "asl",
+        "active": false,
+        "disabled": true,
+        "completed": false,
+        "group": "calc"
+    }
+]

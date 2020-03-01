@@ -1,4 +1,5 @@
 import React, { Fragment } from "react";
+import Show from "./show";
 
 const Content = props => (
   <Fragment>
@@ -96,13 +97,15 @@ const BtnToolBasic = props => (
   </div>
 );
 
-const BtnFloat = ({ theme, icon, onClick }) => (
+const BtnFloat = ({ theme, children, onClick }) => (
   <button
     type="button"
     onClick={onClick}
-    className={`btn ${theme ? theme : "btn-success"} btn-floated`}
+    className={`btn ${theme ? theme : "btn-success"} btn-lg btn-floated`}
   >
-    <span className={`${icon ? icon : "fa fa-plus"}`}></span>
+    <Show condicion={children}>
+      {children}
+    </Show>
   </button>
 );
 

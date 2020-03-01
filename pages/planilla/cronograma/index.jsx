@@ -1,10 +1,12 @@
 import React, {Component, Fragment} from 'react';
-import Datatable from '../../components/datatable';
+import Datatable from '../../../components/datatable';
 import Router from 'next/router';
 import btoa from 'btoa';
-import Info from '../../components/cronograma/info';
-import { authentication } from '../../services/apis';
-import { Form, Button } from 'semantic-ui-react';
+import Info from '../../../components/cronograma/info';
+import Create from '../../../components/cronograma/create';
+import { authentication } from '../../../services/apis';
+import { Form, Button, Icon } from 'semantic-ui-react';
+import { BtnFloat } from '../../../components/Utils'
 
 export default class Cronograma extends Component {
 
@@ -75,7 +77,7 @@ export default class Cronograma extends Component {
                                 key: "id",
                                 type: "text"
                             }, {
-                                key: "planilla.descripcion",
+                                key: "planilla.nombre",
                                 type: "text",
                                 children: [
                                     {
@@ -151,7 +153,7 @@ export default class Cronograma extends Component {
                                     disabled={this.state.loading}
                                     color="blue"
                                 >
-                                    <i className="fas fa-search"></i>
+                                    <i className="fas fa-search mr-1"></i>
                                     <span>Buscar</span>
                                 </Button>
                             </div>
@@ -160,17 +162,26 @@ export default class Cronograma extends Component {
                     </Form>
                 </Datatable>
                 {/* componentes de la ventana  */}
-                <Info show={
-                        query.info
-                    }
+                <Info show={query.info}
                     query={query}
                     pathname={pathname}
-                    close={
-                        (e) => {
-                            query.info = "";
-                            Router.push({pathname, query});
-                        }
-                    }/>
+                    close={(e) => {
+                        query.info = "";
+                        Router.push({pathname, query});
+                    }}
+                />
+                {/* event create cronograma */}
+                <BtnFloat
+                    onClick={(e) => Router.push({ pathname, query:  { create: "true" }})}
+                >
+                    <i className="fas fa-plus"></i>
+                </BtnFloat>
+                {/* create cronograma */}
+                <Create show={query.create}
+                    isClose={(e) => Router.push({ pathname, query: { create: null }})}
+                >
+
+                </Create>
             </div>
         )
     }

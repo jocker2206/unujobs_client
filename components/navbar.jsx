@@ -202,7 +202,7 @@ class Navbar extends Component {
                             </span>{" "}
                             <span className="account-summary pr-lg-4 d-none d-lg-block">
                               <span className="account-name" style={{ textTransform: 'capitalize' }}>
-                                {auth && auth.nombre_completo }
+                                {auth && auth.username }
                               </span>{" "}
                               <span className="account-description">
                                 {auth && auth.email}

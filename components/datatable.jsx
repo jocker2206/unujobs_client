@@ -63,14 +63,18 @@ export default class DataTable extends Component {
   }
 
   verifyObjects(obj, index) {
-    let newParts = index.key.split(".");
-    let response = obj;
-    for (let part of newParts) {
-      if (typeof response[part] != undefined) {
-        response = response[part];
+    try {
+      let newParts = index.key.split(".");
+      let response = obj;
+      for (let part of newParts) {
+        if (typeof response[part] != undefined) {
+          response = response[part];
+        }
       }
+      return response;
+    } catch (error) {
+      return "";
     }
-    return response;
   }
 
   async handleInput(e) {
