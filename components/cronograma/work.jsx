@@ -1,8 +1,9 @@
 import React, { Component, Fragment } from 'react';
 import { authentication } from '../../services/apis';
-import { Form, Button, Select } from 'semantic-ui-react';
+import { Form, Button, Select, Message } from 'semantic-ui-react';
 import { parseOptions } from '../../services/utils';
 import Show from '../show';
+import Swal from 'sweetalert2';
 
 
 export default class Work extends Component {
@@ -10,6 +11,7 @@ export default class Work extends Component {
     state = {
         history: {},
         work: {},
+        error: ""
     };
 
 
@@ -53,17 +55,36 @@ export default class Work extends Component {
         if (typeof this.props.fireSent == 'function') this.props.fireSent();
     }
 
-    updateWork = () => {
-        alert('updating work...');
+    updateWork = async () => {
+        this.setState({ error: "" });
+        let form = Object.assign({}, this.state.work);
+        form._method = 'PUT';
+        await authentication.post(`work/${this.state.work.id}`, form)
+        .then(async res => {
+            let { success, message } = res.data;
+            let newHistorial = Object.assign({}, this.state.history);
+            newHistorial.work = this.state.work;
+            let icon = success ? 'success' : 'error';
+            await Swal.fire({ icon, text: message });
+            success ? await this.props.updatedHistorial(newHistorial) : null;
+        })
+        .catch(({ response }) => this.setState({ error: response.data.message }));
+        this.props.fireSent();
     }
 
     render() {
 
-        let { work } = this.state;
-        let { bancos } = this.props;
+        let { work, error } = this.state;
 
         return (
             <Fragment>
+
+                <Show condicion={error}>
+                    <Message color="red">
+                        Error: { error }
+                    </Message>
+                </Show>
+
                 <Show condicion={this.props.total}>
                     <div className="row">
                         <div className="col-md-3">
@@ -71,9 +92,8 @@ export default class Work extends Component {
                                 <b>Apellido Paterno</b>
                                 <input type="text" 
                                     name="ape_paterno"
-                                    value={work.ape_paterno}
-                                    onChange={this.handleInput}
-                                    readOnly
+                                    defaultValue={work.ape_paterno}
+                                    disabled={true}
                                 />
                             </Form.Field>
 
@@ -81,9 +101,8 @@ export default class Work extends Component {
                                 <b>Fecha de Nacimiento</b>
                                 <input type="date" 
                                     name="ape_paterno"
-                                    value={work.fecha_de_nacimiento}
-                                    onChange={this.handleInput}
-                                    readOnly
+                                    defaultValue={work.fecha_de_nacimiento}
+                                    disabled={true}
                                 />
                             </Form.Field>
 
@@ -115,8 +134,7 @@ export default class Work extends Component {
                                 <input type="text" 
                                     name="ape_materno"
                                     value={work.ape_materno}
-                                    onChange={this.handleInput}
-                                    readOnly
+                                    disabled={true}
                                 />
                             </Form.Field>
 
@@ -125,11 +143,12 @@ export default class Work extends Component {
                                 <Select placeholder="Select. Género"
                                     options={[
                                         {key: "t", value: "", text: "Select. Género"},
-                                        {key: "m", value: 1, text: "Masculino"},
-                                        {key: "f", value: 0, text: "Femenino"}
+                                        {key: "m", value: "M", text: "Masculino"},
+                                        {key: "f", value: "F", text: "Femenino"},
+                                        {key: "i", value: "I", text: "No Binario"}
                                     ]}
-                                    name="sexo"
-                                    value={work.sexo}
+                                    name="genero"
+                                    value={work.genero}
                                     onChange={this.handleSelect}
                                     disabled={!this.props.edit}
                                 />
@@ -152,7 +171,7 @@ export default class Work extends Component {
                                 <input type="text" 
                                     name="nombres"
                                     value={work.nombres}
-                                    readOnly
+                                    disabled={true}
                                 />
                             </Form.Field>
 
@@ -165,19 +184,6 @@ export default class Work extends Component {
                                     onChange={this.handleInput}
                                 />
                             </Form.Field>
-
-                            <Form.Field>
-                                <b>Banco</b>
-                                <Select placeholder='Select. Banco' 
-                                    options={parseOptions(bancos, ['sel-afp', '', 'Select. Banco'], ['id', 'id', 'nombre'])} 
-                                    disabled={!this.props.edit}
-                                    value={work.banco_id ? work.banco_id : ''}
-                                    name="banco_id"
-                                    onChange={this.handleSelect}
-                                    disabled={!this.props.edit}
-                                    onChange={this.handleSelect}
-                                />
-                            </Form.Field>
                         </div>
 
                         <div className="col-md-3">
@@ -185,26 +191,16 @@ export default class Work extends Component {
                                 <b>N° Documento</b>
                                 <input type="text" 
                                     name="numero_de_documento"
-                                    readOnly
                                     value={work.numero_de_documento}
+                                    disabled={true}
                                 />
                             </Form.Field>
 
                             <Form.Field>
-                                <b>Profesión</b>
+                                <b>Profesión Abrev.</b>
                                 <input type="text"
                                     name="profesion"
                                     value={work.profesion ? work.profesion : ''}
-                                    disabled={!this.props.edit}
-                                    onChange={this.handleInput}
-                                />
-                            </Form.Field>
-
-                            <Form.Field>
-                                <b>N° de Cuenta</b>
-                                <input type="text" 
-                                    name="numero_de_cuenta"
-                                    value={work.numero_de_cuenta ? work.numero_de_cuenta : ''}
                                     disabled={!this.props.edit}
                                     onChange={this.handleInput}
                                 />

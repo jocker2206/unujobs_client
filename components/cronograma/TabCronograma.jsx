@@ -18,6 +18,12 @@ export default class TabCronograma extends Component
         }
     }
 
+    updatedHistorial = async (newHistorial) => {
+        if (typeof this.props.updatingHistorial == 'function') {
+            await this.props.updatingHistorial(newHistorial);
+        }
+    }
+
     render() {
 
         let { loading, edit, send, total } = this.props;
@@ -38,6 +44,7 @@ export default class TabCronograma extends Component
                             send={send}
                             total={total}
                             fireSent={this.onSend}
+                            updatedHistorial={this.updatedHistorial}
                         />
                     </Tab.Pane> 
             },
@@ -51,6 +58,7 @@ export default class TabCronograma extends Component
                             send={send}
                             total={total}
                             fireSent={this.onSend}
+                            updatedHistorial={this.updatedHistorial}
                         /> 
                     </Tab.Pane>
                 )
@@ -65,6 +73,7 @@ export default class TabCronograma extends Component
                             send={send}
                             total={total}
                             fireSent={this.onSend}
+                            updatedHistorial={this.updatedHistorial}
                         /> 
                     </Tab.Pane>
                 )
@@ -79,6 +88,7 @@ export default class TabCronograma extends Component
                             send={send}
                             total={total}
                             fireSent={this.onSend}
+                            updatedHistorial={this.updatedHistorial}
                         />
                     </Tab.Pane>
                 }

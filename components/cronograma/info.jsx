@@ -8,7 +8,7 @@ import { CSVLink } from "react-csv";
 import { parseOptions } from '../../services/utils';
 import Show from '../../components/show';
 import TabCronograma from './TabCronograma';
-import { Form, Button, Input, Select, Icon, Confirm } from 'semantic-ui-react';
+import { Form, Button, Input, Select, Icon, Message } from 'semantic-ui-react';
 
 
 export default class Info extends Component {
@@ -265,8 +265,12 @@ export default class Info extends Component {
         });  
     }
 
-    sentEnd = (e) => {
-        this.setState({ loading: false, send: false });
+    sentEnd = async () => {
+        await this.setState({ loading: false, send: false });
+    }
+
+    updatingHistorial = async (newHistorial) => {
+        await this.setState({ historial: newHistorial, edit: false });
     }
 
     handleConfirm = async (e) => {
@@ -425,6 +429,7 @@ export default class Info extends Component {
                                         send={this.state.send}
                                         total={this.state.total}
                                         sentEnd={this.sentEnd}
+                                        updatingHistorial={this.updatingHistorial}
                                         menu={{ secondary: true, pointing: true }}
                                     />  
                                 </Show>          
@@ -467,7 +472,7 @@ export default class Info extends Component {
 
                                             <div className="col-md-3 mb-1">
                                                 <Select placeholder='Select. Planilla' 
-                                                    options={parseOptions(planillas, ['sel-afp', '', 'Select. Planilla'], ['id', 'id', 'descripcion'])} 
+                                                    options={parseOptions(planillas, ['sel-afp', '', 'Select. Planilla'], ['id', 'id', 'nombre'])} 
                                                     value={cronograma.planilla_id}
                                                     name="planilla_id"
                                                 />

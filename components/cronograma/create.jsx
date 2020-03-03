@@ -22,8 +22,9 @@ export default class Create extends Component
         this.getCurrentCookie();
     }
 
+
     getCurrentCookie = () => {
-        let config_cronograma = JSON.parse(Cookies.get('config_cronograma') ? Cookies.get('config_cronograma') : this.state);
+        let config_cronograma = Cookies.get('config_cronograma') ? JSON.parse(Cookies.get('config_cronograma')) : this.state;
         let { group_current, current, payload } = config_cronograma;
         this.setState({ group_current, current, payload });
     }

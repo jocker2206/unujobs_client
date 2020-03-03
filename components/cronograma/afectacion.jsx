@@ -215,7 +215,7 @@ export default class Afectacion extends Component {
                     </Form.Field>
 
                     <Form.Field>
-                        <b>Escuela</b>
+                        <b>Ofícina</b>
                         <input type="text" 
                             name="escuela"
                             value={history.escuela ? history.escuela : ''}
@@ -271,7 +271,7 @@ export default class Afectacion extends Component {
                         <b>Perfil Trabajador</b>
                         <input type="text" 
                             name="perfil"
-                            value={history.perfil}
+                            value={history.perfil_laboral}
                             onChange={this.handleInput}
                             disabled={!this.props.edit}
                         />
