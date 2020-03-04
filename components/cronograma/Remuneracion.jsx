@@ -17,8 +17,8 @@ export default class Remuneracion extends Component
     }
 
 
-    componentDidMount() {
-        this.getRemuneraciones(this.props);
+    async componentDidMount() {
+        await this.getRemuneraciones(this.props);
     }
 
     componentWillReceiveProps = async (nextProps) => {
@@ -28,6 +28,7 @@ export default class Remuneracion extends Component
     }
 
     getRemuneraciones = async (props) => {
+        this.setState({ loader: true });
         let { historial } = props;
         await authentication.get(`historial/${historial.id}/remuneracion`)
         .then(res => {

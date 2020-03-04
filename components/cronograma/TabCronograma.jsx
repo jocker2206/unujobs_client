@@ -6,6 +6,8 @@ import Descuento from './descuento';
 import Aportacion from './aportacion';
 import { Tab } from 'semantic-ui-react'
 import Obligacion from './obligacion';
+import Sindicato from './sindicato';
+import Detallado from './detallado';
 
 export default class TabCronograma extends Component
 {
@@ -96,10 +98,10 @@ export default class TabCronograma extends Component
                 )
             },
             {
-                menuItem: {key: 'aportacion', icon: 'certificate', content: 'Aporte Empleador', disabled: edit },
+                menuItem: {key: 'detallado', icon: 'briefcase', content: 'Descuentos Detallados', disabled: edit },
                 render: () => (
                     <Tab.Pane style={styles} loading={loading}>
-                        <Aportacion
+                        <Detallado
                             edit={this.props.edit}
                             historial={this.props.historial}
                             send={send}
@@ -111,7 +113,7 @@ export default class TabCronograma extends Component
                 )
             },
             {
-                menuItem: {key: 'obligacion', icon: 'balance scale', content: 'Obligacion Judicial', disabled: edit },
+                menuItem: {key: 'obligacion', icon: 'balance scale', content: 'Obligaciones Judicial', disabled: edit },
                 render: () => (
                     <Tab.Pane style={styles} loading={loading}>
                         <Obligacion
@@ -125,6 +127,36 @@ export default class TabCronograma extends Component
                     </Tab.Pane>
                 )
             },
+            {
+                menuItem: {key: 'sindicato', icon: 'users', content: 'Sindicatos', disabled: edit },
+                render: () => (
+                    <Tab.Pane style={styles} loading={loading}>
+                        <Sindicato
+                            edit={this.props.edit}
+                            historial={this.props.historial}
+                            send={send}
+                            total={total}
+                            fireSent={this.onSend}
+                            updatedHistorial={this.updatedHistorial}
+                        /> 
+                    </Tab.Pane>
+                )
+            },
+            {
+                menuItem: {key: 'aportacion', icon: 'certificate', content: 'Aportes Empleador', disabled: edit },
+                render: () => (
+                    <Tab.Pane style={styles} loading={loading}>
+                        <Aportacion
+                            edit={this.props.edit}
+                            historial={this.props.historial}
+                            send={send}
+                            total={total}
+                            fireSent={this.onSend}
+                            updatedHistorial={this.updatedHistorial}
+                        /> 
+                    </Tab.Pane>
+                )
+            }
         ];
 
         return <Tab panes={panes} menu={this.props.menu} className="w-100"/>

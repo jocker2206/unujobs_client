@@ -17,8 +17,8 @@ export default class Descuento extends Component
     }
 
 
-    componentDidMount() {
-        this.getDescuentos(this.props);
+    async componentDidMount() {
+        await this.getDescuentos(this.props);
     }
 
     componentWillReceiveProps = async (nextProps) => {
@@ -28,6 +28,7 @@ export default class Descuento extends Component
     }
 
     getDescuentos = async (props) => {
+        this.setState({ loader: true });
         let { historial } = props;
         await authentication.get(`historial/${historial.id}/descuento`)
         .then(res => {

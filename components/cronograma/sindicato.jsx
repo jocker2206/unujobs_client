@@ -11,19 +11,21 @@ export default class Remuneracion extends Component
     state = {
         type_aportaciones: [],
         aportaciones: [],
-        type_aportacion_id: "",
+        sindicato_id: "",
         loader: true,
     }
 
 
     componentDidMount = async () => {
-        await this.getTypeAportaciones();
         await this.getAportaciones(this.props);
+        await this.getTypeAportaciones();
+        await this.setState({ loader: false });
     }
 
     componentWillReceiveProps = async (nextProps) => {
         if (nextProps.historial && nextProps.historial.id != this.props.historial.id) {
             await this.getAportaciones(nextProps);
+            await this.setState({ loader: false });
         }
     }
 
@@ -32,13 +34,11 @@ export default class Remuneracion extends Component
     }
 
     getAportaciones = async (props) => {
-        await this.setState({ loader: true });
         let { historial } = props;
         await authentication.get(`historial/${historial.id}/aportacion`)
         .then(async res => {
             await this.setState({ aportaciones: res.data ? res.data : [] });
         }).catch(err => console.log(err.message));
-        await this.setState({ loader: false });
     }
 
     getTypeAportaciones = async () => {
@@ -49,28 +49,27 @@ export default class Remuneracion extends Component
 
     render() {
 
-        let { aportaciones, type_aportacion_id, type_aportaciones, loader } = this.state;
+        let { aportaciones, sindicato_id, type_aportaciones, loader } = this.state;
  
         return (
             <Form className="row" loading={loader}>
 
                 <div className="col-md-12">
                     <div className="row">
-                        <div className="col-md-5">
+                        <div className="col-md-4">
                             <Select
-                                labeled="Select. Aportación Empleador"
                                 fluid
-                                placeholder="Select. Aportacion Empleador"
-                                options={parseOptions(type_aportaciones, ['sel-type', '', 'Select. Aportación Empleador'], ['id', 'id', 'descripcion'])}
-                                name="type_aportacion_id"
-                                value={type_aportacion_id}
+                                placeholder="Select. Sindicato"
+                                options={parseOptions(type_aportaciones, ['sel-type', '', 'Select. Sindicato'], ['id', 'id', 'descripcion'])}
+                                name="sindicato_id"
+                                value={sindicato_id}
                                 onChange={(e, obj) => this.handleInput(obj)}
                                 disabled={!this.props.edit}
                             />
                         </div>
                         <div className="col-xs">
                             <Button color="green"
-                                disabled={!type_aportacion_id}    
+                                disabled={!sindicato_id}    
                             >
                                 <Icon name="plus"/> Agregar
                             </Button>
