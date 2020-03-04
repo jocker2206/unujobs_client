@@ -1,5 +1,5 @@
 {
-    "document_type": [
+    "tipo_documento": [
         {
             "key": "01",
             "text": "DNI",

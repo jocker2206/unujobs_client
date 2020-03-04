@@ -29,7 +29,6 @@ export default class Remuneracion extends Component
 
     getRemuneraciones = async (props) => {
         let { historial } = props;
-        console.log('fetch...');
         await authentication.get(`historial/${historial.id}/remuneracion`)
         .then(res => {
             let { remuneraciones, total_bruto, total_desct, total_neto, base } = res.data;

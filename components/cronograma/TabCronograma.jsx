@@ -1,9 +1,11 @@
 import React, { Component } from 'react';
 import Work from './work';
 import Afectacion from './afectacion';
-import Remuneracion from './Remuneracion';
-import Descuento from './Descuento';
+import Remuneracion from './remuneracion';
+import Descuento from './descuento';
+import Aportacion from './aportacion';
 import { Tab } from 'semantic-ui-react'
+import Obligacion from './obligacion';
 
 export default class TabCronograma extends Component
 {
@@ -79,8 +81,8 @@ export default class TabCronograma extends Component
                 )
             },
             {
-                menuItem: {key: 'descuento', icon: 'dollar down', content: 'Descuentos', disabled: edit },
-                render: () => {
+                menuItem: {key: 'descuento', icon: 'arrow down cart', content: 'Descuentos', disabled: edit },
+                render: () => (
                     <Tab.Pane style={styles} loading={loading}>
                         <Descuento
                             edit={this.props.edit}
@@ -89,10 +91,40 @@ export default class TabCronograma extends Component
                             total={total}
                             fireSent={this.onSend}
                             updatedHistorial={this.updatedHistorial}
-                        />
+                        /> 
                     </Tab.Pane>
-                }
-            }
+                )
+            },
+            {
+                menuItem: {key: 'aportacion', icon: 'certificate', content: 'Aporte Empleador', disabled: edit },
+                render: () => (
+                    <Tab.Pane style={styles} loading={loading}>
+                        <Aportacion
+                            edit={this.props.edit}
+                            historial={this.props.historial}
+                            send={send}
+                            total={total}
+                            fireSent={this.onSend}
+                            updatedHistorial={this.updatedHistorial}
+                        /> 
+                    </Tab.Pane>
+                )
+            },
+            {
+                menuItem: {key: 'obligacion', icon: 'balance scale', content: 'Obligacion Judicial', disabled: edit },
+                render: () => (
+                    <Tab.Pane style={styles} loading={loading}>
+                        <Obligacion
+                            edit={this.props.edit}
+                            historial={this.props.historial}
+                            send={send}
+                            total={total}
+                            fireSent={this.onSend}
+                            updatedHistorial={this.updatedHistorial}
+                        /> 
+                    </Tab.Pane>
+                )
+            },
         ];
 
         return <Tab panes={panes} menu={this.props.menu} className="w-100"/>

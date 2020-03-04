@@ -8,7 +8,7 @@ import { CSVLink } from "react-csv";
 import { parseOptions } from '../../services/utils';
 import Show from '../../components/show';
 import TabCronograma from './TabCronograma';
-import { Form, Button, Input, Select, Icon, Message } from 'semantic-ui-react';
+import { Form, Button, Input, Select, Icon } from 'semantic-ui-react';
 
 
 export default class Info extends Component {
