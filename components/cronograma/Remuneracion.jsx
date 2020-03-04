@@ -21,9 +21,15 @@ export default class Remuneracion extends Component
         this.getRemuneraciones(this.props);
     }
 
+    componentWillReceiveProps = async (nextProps) => {
+        if (nextProps.historial && nextProps.historial.id != this.props.historial.id) {
+            await this.getRemuneraciones(nextProps);
+        }
+    }
 
     getRemuneraciones = async (props) => {
         let { historial } = props;
+        console.log('fetch...');
         await authentication.get(`historial/${historial.id}/remuneracion`)
         .then(res => {
             let { remuneraciones, total_bruto, total_desct, total_neto, base } = res.data;
@@ -50,12 +56,12 @@ export default class Remuneracion extends Component
                     <div className="row justify-content-center">
                         <b className="col-md-3">
                             <Button basic loading={loader} fluid color="black">
-                                {loader ? 'Cargando...' : `Total Descuentos: S/ ${total_desct}`}
+                                {loader ? 'Cargando...' : `Total Descuentos: S/ ${total_bruto}`}
                             </Button>
                         </b>
                         <b className="col-md-3">
                             <Button basic loading={loader} fluid color="black">
-                                {loader ? 'Cargando...' : `Total Bruto: S/ ${total_bruto}`}
+                                {loader ? 'Cargando...' : `Total Bruto: S/ ${total_desct}`}
                             </Button>
                         </b>
                         <b className="col-md-3">
@@ -77,28 +83,22 @@ export default class Remuneracion extends Component
 
                 {remuneraciones.map(obj => 
                     <div  key={`remuneracion-${obj.id}`}
-                         className="col-md-4 mb-1"
+                         className="col-md-3 mb-1"
                     >
-                        <div className="row">
-                            <b className="col-md-8">
-                                <span className="text-danger">
-                                    {obj.type_remuneracion && obj.type_remuneracion.key}
-                                </span>
-                                .-
-                                <span className="text-primary">
-                                    {obj.type_remuneracion && obj.type_remuneracion.alias}
-                                </span>
-                            </b>
-                            <div className="col-md-4">
-                                <Form.Field>
-                                    <input type="number"
-                                        step="any" 
-                                        value={obj.monto}
-                                        disabled={!obj.edit ? true : !this.props.edit}
-                                    />
-                                </Form.Field>
-                            </div>
-                        </div>
+                        <span className="text-danger">
+                            {obj.type_remuneracion && obj.type_remuneracion.key}
+                        </span>
+                            .-
+                        <span className="text-primary">
+                            {obj.type_remuneracion && obj.type_remuneracion.alias}
+                        </span>
+                        <Form.Field>
+                            <input type="number"
+                                step="any" 
+                                value={obj.monto}
+                                disabled={!obj.edit ? true : !this.props.edit}
+                            />
+                        </Form.Field>
                     </div>
                 )}
             </form>

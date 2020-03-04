@@ -11,11 +11,12 @@ export default class Afectacion extends Component {
         history: {},
         work: {},
         afps: [],
+        info: {},
         type_afps: [],
         metas: [],
         sindicatos: [],
         cargos: [],
-        categorias: []
+        type_categorias: []
     };
 
 
@@ -46,7 +47,8 @@ export default class Afectacion extends Component {
     setting = async (nextProps) => {
         this.setState({
             history: nextProps.historial ? nextProps.historial : {},
-            work: nextProps.historial.work ? nextProps.historial.work : {}
+            work: nextProps.historial.work ? nextProps.historial.work : {},
+            info: nextProps.historial.info ? nextProps.historial.info : {},
         });
     }
 
@@ -113,11 +115,11 @@ export default class Afectacion extends Component {
         let {
             history,
             cargos,
-            categorias,
+            info,
+            type_categorias,
             afps,
             type_afps,
-            metas,
-            sindicatos
+            metas
         } = this.state;
 
         return (
@@ -146,9 +148,9 @@ export default class Afectacion extends Component {
                         <b>Fecha de Ingreso <b className="text-red">*</b></b>
                         <input type="date" 
                             name="fecha_de_ingreso"
-                            value={history.fecha_de_ingreso}
+                            value={info.fecha_de_ingreso}
                             onChange={this.handleInput}
-                            disabled={!this.props.edit}
+                            disabled={true}
                         />
                     </Form.Field>
 
@@ -208,9 +210,9 @@ export default class Afectacion extends Component {
                         <b>Fecha de Cese</b>
                         <input type="date" 
                             name="fecha_de_cese"
-                            value={history.fecha_de_cese ? history.fecha_de_cese : ''}
+                            value={info.fecha_de_cese ? info.fecha_de_cese : ''}
                             onChange={this.handleInput}
-                            disabled={!this.props.edit}
+                            disabled={true}
                         />
                     </Form.Field>
 
@@ -281,8 +283,8 @@ export default class Afectacion extends Component {
                         <b>Categoría</b>
                         <input type="text"
                             disabled={true}
-                            name="categoria_id"
-                            value={history.categoria && history.categoria.descripcion}
+                            name="type_categoria_id"
+                            value={history.type_categoria && history.type_categoria.descripcion}
                         />
                     </Form.Field>
                 </div>

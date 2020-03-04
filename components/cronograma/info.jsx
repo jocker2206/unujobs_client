@@ -31,12 +31,12 @@ export default class Info extends Component {
             },
             historial: {},
             cargo_id: "",
-            categoria_id: "",
+            type_categoria_id: "",
             afp_id: "",
             planillas: [],
             afps: [],
             cargos: [],
-            categorias: [],
+            type_categorias: [],
             bancos: [],
             send: false,
             exports: {
@@ -64,14 +64,12 @@ export default class Info extends Component {
         this.getAFPs();
     }
 
-
     componentWillUpdate = (nextProps, nextState) => {
         if (nextState.cronograma.planilla_id != this.state.cronograma.planilla_id) this.getCargos(nextState);
-        if (nextState.cargo_id != "" && nextState.cargo_id != this.state.cargo_id) this.getCategorias(nextState);
-        if (nextState.cargo_id == "" && nextState.cargo_id != this.state.cargo_id) this.setState({ categoria_id: "", categorias: [] });
+        if (nextState.cargo_id != "" && nextState.cargo_id != this.state.cargo_id) this.gettype_categorias(nextState);
+        if (nextState.cargo_id == "" && nextState.cargo_id != this.state.cargo_id) this.setState({ type_categoria_id: "", type_categorias: [] });
         if (nextProps.show != this.props.show && nextProps.show && !Object.keys(nextState.historial).length) this.getCronograma(nextProps, nextState);
     }
-
 
     getPlanillas = async () => {
         this.setState({ loading: true });
@@ -83,20 +81,17 @@ export default class Info extends Component {
         this.setState({ loading: false });
     }
 
-
     getAFPs = () => {
         authentication.get(`cronograma/${this.state.cronograma_id}/afp`)
         .then(res => this.setState({ afps: res.data }))
         .catch(err => console.log(err.message));
     }
 
-
     getBancos = () => {
         authentication.get(`banco`)
         .then(res => this.setState({ bancos: res.data }))
         .catch(err => console.log(err.message));
     }
-
 
     handleInput = e => {
         let { name, value } = e.target;
@@ -107,7 +102,6 @@ export default class Info extends Component {
         this.setState({ [name]: value });
     }
 
-
     readCronograma = async (e) => {
         if (!this.state.edit) {
             await this.setState({ page: 1 });
@@ -117,7 +111,6 @@ export default class Info extends Component {
         }
     }
 
-
     getExport = async () => {
         let newExport = Object.assign({}, this.state.exports);
         newExport.click = 1;
@@ -125,7 +118,6 @@ export default class Info extends Component {
         await this.setState({ exports: newExport });
         await this.readCronograma();
     }
-
 
     clearSearch = async () => {
         await this.setState({ 
@@ -138,19 +130,17 @@ export default class Info extends Component {
         await this.readCronograma();
     }
 
-
     getAlert = () => {
         Swal.fire({ icon: "warning", text: "La edición está activa!. Actualize o Cancele la edición" });
     }
-
 
     getCronograma = async (props, state) => {
         this.setState({ loading: true });
         try {
             let { query } = props;
-            let { page, cargo_id, categoria_id, afp_id, like, exports } = state;
+            let { page, cargo_id, type_categoria_id, afp_id, like, exports } = state;
             let id = query.info ? atob(query.info) : "";
-            let params = `page=${page}&cargo_id=${cargo_id}&categoria_id=${categoria_id}&afp_id=${afp_id}&like=${like}&export=${exports.click}`;
+            let params = `page=${page}&cargo_id=${cargo_id}&type_categoria_id=${type_categoria_id}&afp_id=${afp_id}&like=${like}&export=${exports.click}`;
             await authentication.get(`cronograma/${id}?${params}`)
             .then(async res => {
                 if (exports.click) {
@@ -183,21 +173,19 @@ export default class Info extends Component {
         this.setState({ loading: false, exports: newExport });
     }
 
-
     sendEmail = async () => {
         let  { historial } = this.state;
-        this.setState({ block: true, send: true });
+        this.setState({ block: true });
         await authentication.post(`historial/${historial.id}/send_boleta`)
-        .then(res => {
+        .then(async res => {
             let { success, message } = res.data;
             let icon = success ? 'success' : 'error';
-            Swal.fire({ icon, text: message });
+            await Swal.fire({ icon, text: message });
         }).catch(err => {
             Swal.fire({ icon: 'error', text: "Algo salió mal, vuelva más tarde!" });
         });
-        this.setState({ block: false, send: false });
+        this.setState({ block: false });
     }
-
 
     getCargos = (state) => {
         let { cronograma } = state;
@@ -207,16 +195,14 @@ export default class Info extends Component {
         }).catch(err =>  console.log(err.message));
     }
 
-
-    getCategorias = (state) => {
+    gettype_categorias = (state) => {
         let { cargo_id } = state;
         authentication.get(`cargo/${cargo_id}`)
         .then(async res => {
-            let { categorias } = res.data;
-            this.setState({ categorias: categorias ? categorias : [] });
+            let { type_categorias } = res.data;
+            this.setState({ type_categorias: type_categorias ? type_categorias : [] });
         }).catch(err =>  console.log(err.message));
     }
-
 
     next = async (e) => {
         let { page, last_page, edit } = this.state;
@@ -246,12 +232,11 @@ export default class Info extends Component {
         }
     }
 
-
     close(e) {
         if (typeof this.props.close == 'function') this.props.close(e);
         this.setState({ 
             cargo_id: "", 
-            categoria_id: "", 
+            type_categoria_id: "", 
             page: 1, 
             afp_id: "",
             like: "",
@@ -290,8 +275,8 @@ export default class Info extends Component {
             cronograma, exports, 
             historial, planillas, 
             afps, cargos, 
-            categorias, loading, 
-            cargo_id, categoria_id, 
+            type_categorias, loading, 
+            cargo_id, type_categoria_id, 
             afp_id 
         } = this.state;
 
@@ -335,10 +320,10 @@ export default class Info extends Component {
                                 
                                 <div className="col-md-2 mb-1">
                                     <Select placeholder='Select. Categoría' 
-                                        options={parseOptions(categorias, ['sel-cat', '', 'Select. Categoría'], ['id', 'id', 'nombre'])}
+                                        options={parseOptions(type_categorias, ['sel-cat', '', 'Select. Categoría'], ['id', 'id', 'descripcion'])}
                                         disabled={loading || this.state.edit || this.state.block}
-                                        value={categoria_id}
-                                        name="categoria_id"
+                                        value={type_categoria_id}
+                                        name="type_categoria_id"
                                         onChange={this.handleSelect}
                                     />
                                 </div>
@@ -451,10 +436,9 @@ export default class Info extends Component {
                                             <div className="col-md-2 mb-1">
                                                 <Form.Field>
                                                     <input type="number"  
-                                                        name="year" 
                                                         placeholder="Año"
-                                                        value={cronograma.year}
-                                                        readOnly
+                                                        defaultValue={cronograma.year}
+                                                        disabled={true}
                                                     />
                                                 </Form.Field>
                                             </div>
@@ -462,10 +446,9 @@ export default class Info extends Component {
                                             <div className="col-md-2 mb-1">
                                                 <Form.Field>
                                                     <input type="number" 
-                                                        name="mes" 
                                                         placeholder="Mes"
-                                                        value={cronograma.mes}
-                                                        readOnly
+                                                        defaultValue={cronograma.mes}
+                                                        disabled={true}
                                                     />
                                                 </Form.Field>
                                             </div>
@@ -474,7 +457,7 @@ export default class Info extends Component {
                                                 <Select placeholder='Select. Planilla' 
                                                     options={parseOptions(planillas, ['sel-afp', '', 'Select. Planilla'], ['id', 'id', 'nombre'])} 
                                                     value={cronograma.planilla_id}
-                                                    name="planilla_id"
+                                                    disabled={true}
                                                 />
                                             </div>
 
@@ -482,7 +465,7 @@ export default class Info extends Component {
                                                 <div className="col-md-2 mb-1">
                                                     <Form.Field>
                                                         <input type="text" 
-                                                            value={`Adicional ${cronograma.numero}`}
+                                                            value={`Adicional ${cronograma.adicional}`}
                                                             readOnly
                                                         />
                                                     </Form.Field>
