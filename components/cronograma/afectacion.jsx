@@ -3,6 +3,7 @@ import { authentication } from '../../services/apis';
 import { Form, Select } from 'semantic-ui-react';
 import Show from '../show';
 import { parseOptions } from '../../services/utils';
+import storage from '../../services/storage.json';
 
 export default class Afectacion extends Component {
 
@@ -14,9 +15,9 @@ export default class Afectacion extends Component {
         info: {},
         type_afps: [],
         metas: [],
-        sindicatos: [],
         cargos: [],
-        type_categorias: []
+        type_categorias: [],
+        dependencias: []
     };
 
 
@@ -25,8 +26,8 @@ export default class Afectacion extends Component {
         await this.getAFPs();
         this.getTypeAFP(this.state);
         this.getMetas();
-        this.getSindicatos();
         this.getCargos(this.state);
+        this.getDependencias();
     }
 
 
@@ -52,6 +53,11 @@ export default class Afectacion extends Component {
         });
     }
 
+    getDependencias = async () => {
+        await authentication.get('dependencia')
+        .then(res => this.setState({ dependencias: res.data }))
+        .catch(err => console.log(err.message));
+    }
 
     getAFPs = async () => {
         await authentication.get(`afp`).then(res => this.setState({
@@ -102,21 +108,13 @@ export default class Afectacion extends Component {
         }).catch(err => console.log(err.message));
     }
 
-
-    getSindicatos = () => {
-        authentication.get(`sindicato`)
-        .then(res => this.setState({sindicatos: res.data}))
-        .catch(err => console.log(err.message));
-    }
-
-
     render() {
 
         let {
             history,
             cargos,
             info,
-            type_categorias,
+            dependencias,
             afps,
             type_afps,
             metas
@@ -176,7 +174,7 @@ export default class Afectacion extends Component {
                     <Form.Field>
                         <b>Planilla</b>
                         <input type="text"
-                            value={history.planilla && history.planilla.descripcion}
+                            value={history.planilla && history.planilla.nombre}
                             disabled={true}
                         />
                     </Form.Field>
@@ -217,13 +215,22 @@ export default class Afectacion extends Component {
                     </Form.Field>
 
                     <Form.Field>
-                        <b>Ofícina</b>
-                        <input type="text" 
-                            name="escuela"
-                            value={history.escuela ? history.escuela : ''}
-                            onChange={this.handleInput}
-                            disabled={!this.props.edit}
-                        />
+                        <b>Dependencia/Oficina</b>
+                        <Show condicion={this.props.edit}>
+                            <Select
+                                options={parseOptions(dependencias, ['sel_dep', '', 'Select. Dependencia/Oficina'], ['id', 'id', 'nombre'])}
+                                placeholder="Select. Dependencia/Oficina"
+                                value={history.dependencia_id}
+                                name="dependencia_id"
+                                onChange={this.handleSelect}
+                            />
+                        </Show>
+                        <Show condicion={!this.props.edit}>
+                            <input type="text"
+                                disabled={true}
+                                value={history.dependencia && history.dependencia.nombre}
+                            />
+                        </Show>
                     </Form.Field>
 
                     <Form.Field>
@@ -311,20 +318,23 @@ export default class Afectacion extends Component {
                     </Form.Field>
 
                     <Form.Field>
-                        <b>P.A.P</b>
-                        <input type="text" 
-                            name="pap"
-                            value={history.pap}
-                            onChange={this.handleInput}
-                            disabled={!this.props.edit}
+                        <b>Tipo de ingreso</b>
+                        <input
+                            placeholder="Tipo de Ingreso"
+                            defaultValue={info.tipo_ingreso}
+                            disabled={true}
                         />
                     </Form.Field>
 
                     <Form.Field>
-                        <b>Ext. Presupuestal</b>
-                        <input type="text" 
-                            value={history.cargo && history.cargo.ext_pptto}
-                            disabled={true}
+                        <b>P.A.P</b>
+                        <Select
+                            options={storage.pap}
+                            placeholder="Select. P.A.P"
+                            value={history.pap}
+                            name="pap"
+                            onChange={this.handleSelect}
+                            disabled={!this.props.edit}
                         />
                     </Form.Field>
                 </div>
@@ -345,6 +355,14 @@ export default class Afectacion extends Component {
 
                 <div className="col-md-3 mt-2">
                     <Form.Field>
+                        <b>Ext. Presupuestal</b>
+                        <input type="text" 
+                            value={history.cargo && history.cargo.ext_pptto}
+                            disabled={true}
+                        />
+                    </Form.Field>
+
+                    <Form.Field>
                         <b>Prima Seguros</b>
                         <Select
                             options={[
@@ -352,8 +370,8 @@ export default class Afectacion extends Component {
                                 {key: "a", value: 1, text: "Afecto"}
                             ]}
                             placeholder="Select. Prima Seguro"
-                            value={history.prima_afecto & history.prima_afecto}
-                            name="prima_afecto"
+                            value={history.prima_seguro & history.prima_seguro}
+                            name="prima_seguro"
                             onChange={this.handleSelect}
                             disabled={!this.props.edit}
                         />
