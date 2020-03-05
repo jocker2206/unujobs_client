@@ -9,7 +9,7 @@ export default class Remuneracion extends Component
 
 
     state = {
-        type_aportaciones: [],
+        sindicatos: [],
         aportaciones: [],
         sindicato_id: "",
         loader: true,
@@ -17,14 +17,14 @@ export default class Remuneracion extends Component
 
 
     componentDidMount = async () => {
-        await this.getAportaciones(this.props);
-        await this.getTypeAportaciones();
+        // await this.getAportaciones(this.props);
+        await this.getSindicatos();
         await this.setState({ loader: false });
     }
 
     componentWillReceiveProps = async (nextProps) => {
         if (nextProps.historial && nextProps.historial.id != this.props.historial.id) {
-            await this.getAportaciones(nextProps);
+            // await this.getAportaciones(nextProps);
             await this.setState({ loader: false });
         }
     }
@@ -41,15 +41,15 @@ export default class Remuneracion extends Component
         }).catch(err => console.log(err.message));
     }
 
-    getTypeAportaciones = async () => {
-        await authentication.get('type_aportacion')
-        .then(res => this.setState({ type_aportaciones: res.data }))
+    getSindicatos = async () => {
+        await authentication.get('sindicato')
+        .then(res => this.setState({ sindicatos: res.data }))
         .catch(err => console.log(err.message));
     }
 
     render() {
 
-        let { aportaciones, sindicato_id, type_aportaciones, loader } = this.state;
+        let { sindicato_id, sindicatos, loader } = this.state;
  
         return (
             <Form className="row" loading={loader}>
@@ -60,7 +60,7 @@ export default class Remuneracion extends Component
                             <Select
                                 fluid
                                 placeholder="Select. Sindicato"
-                                options={parseOptions(type_aportaciones, ['sel-type', '', 'Select. Sindicato'], ['id', 'id', 'descripcion'])}
+                                options={parseOptions(sindicatos, ['sel-type', '', 'Select. Sindicato'], ['id', 'id', 'nombre'])}
                                 name="sindicato_id"
                                 value={sindicato_id}
                                 onChange={(e, obj) => this.handleInput(obj)}
@@ -81,26 +81,6 @@ export default class Remuneracion extends Component
                     <hr/>
                 </div>
 
-                {aportaciones.map(obj => 
-                    <div  key={`remuneracion-${obj.id}`}
-                         className="col-md-3 mb-1"
-                    >
-                        <span className="text-danger">
-                            {obj.type_aportacion && obj.type_aportacion.key}
-                        </span>
-                            .-
-                        <span className="text-primary">
-                            {obj.type_aportacion && obj.type_aportacion.descripcion}
-                        </span>
-                        <Form.Field>
-                            <input type="number"
-                                step="any" 
-                                value={obj.monto}
-                                disabled={!this.props.edit}
-                            />
-                        </Form.Field>
-                    </div>
-                )}
             </Form>
         )
     }
