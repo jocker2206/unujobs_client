@@ -14,6 +14,7 @@ export default class Remuneracion extends Component
         total_desct: 0,
         base: 0,
         total_neto: 0,
+        payload: [],
     }
 
 
@@ -44,13 +45,18 @@ export default class Remuneracion extends Component
         this.setState({ loader: false });
     }
 
+    handleMonto = (id, monto, index) => {
+        let newPayload = this.state.payload;
+        newPayload[index] = { id, monto };
+        this.setState({ payload: newPayload });
+    }
 
     render() {
 
         let { remuneraciones, total_bruto, total_desct, total_neto, base, loader } = this.state;
  
         return (
-            <form className="row">
+            <Form className="row">
 
                 <div className="col-md-12">
                     <div className="row justify-content-center">
@@ -81,7 +87,7 @@ export default class Remuneracion extends Component
                     <hr/>
                 </div>
 
-                {remuneraciones.map(obj => 
+                {remuneraciones.map((obj, index) => 
                     <div  key={`remuneracion-${obj.id}`}
                          className="col-md-3 mb-1"
                     >
@@ -95,13 +101,15 @@ export default class Remuneracion extends Component
                         <Form.Field>
                             <input type="number"
                                 step="any" 
-                                value={obj.monto}
+                                defaultValue={obj.monto}
                                 disabled={!obj.edit ? true : !this.props.edit}
+                                onChange={({target}) => this.handleMonto(obj.id, target.value, index)}
+                                min="0"
                             />
                         </Form.Field>
                     </div>
                 )}
-            </form>
+            </Form>
         )
     }
 

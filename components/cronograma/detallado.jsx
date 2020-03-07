@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { authentication } from '../../services/apis';
-import { Button, Form, Select, Icon } from 'semantic-ui-react';
+import { Button, Form, Select, Icon, Grid } from 'semantic-ui-react';
 import { parseOptions } from '../../services/utils';
 
 
@@ -14,12 +14,13 @@ export default class Remuneracion extends Component
         type_detalle_id: "",
         monto: "",
         loader: true,
+        payload: []
     }
 
 
     componentDidMount = async () => {
-        // await this.getDetalles(this.props);
         await this.getTypeDetalles();
+        await this.getDetalles(this.props);
         await this.setState({ loader: false });
     }
 
@@ -36,7 +37,7 @@ export default class Remuneracion extends Component
 
     getDetalles = async (props) => {
         let { historial } = props;
-        await authentication.get(`historial/${historial.id}/aportacion`)
+        await authentication.get(`historial/${historial.id}/detalle`)
         .then(async res => {
             await this.setState({ detalles: res.data ? res.data : [] });
         }).catch(err => console.log(err.message));
@@ -46,6 +47,12 @@ export default class Remuneracion extends Component
         await authentication.get('type_detalle')
         .then(res => this.setState({ type_detalles: res.data }))
         .catch(err => console.log(err.message));
+    }
+
+    handleMonto = async (id, monto, index) => {
+        let newPayload = this.state.payload;
+        newPayload[index] = { id, monto };
+        this.setState({ payload: newPayload });
     }
 
     render() {
@@ -96,26 +103,28 @@ export default class Remuneracion extends Component
                     <hr/>
                 </div>
 
-                {detalles.map(obj => 
-                    <div  key={`remuneracion-${obj.id}`}
-                         className="col-md-3 mb-1"
-                    >
-                        <span className="text-danger">
-                            {obj.type_aportacion && obj.type_aportacion.key}
-                        </span>
-                            .-
-                        <span className="text-primary">
-                            {obj.type_aportacion && obj.type_aportacion.descripcion}
-                        </span>
-                        <Form.Field>
-                            <input type="number"
-                                step="any" 
-                                value={obj.monto}
-                                disabled={!this.props.edit}
-                            />
-                        </Form.Field>
-                    </div>
-                )}
+                <div className="col-md-12">
+                    <Grid columns={4} fluid>
+                        {detalles.map(det => 
+                            <Grid.Column key={`type_detalle_${det.id}`}>
+                                <b><span className="text-red mb-2">{det.key}</span>.- <span className="text-primary">{det.descripcion}</span></b>
+                                <hr/>
+                                {det.detalles.map((detalle, index) => 
+                                    <Form.Field key={`detalle-${detalle.id}`}>
+                                        <label htmlFor="">{detalle.type_detalle && detalle.type_detalle.descripcion}</label>
+                                        <input type="number" 
+                                            step="any"
+                                            defaultValue={detalle.monto}
+                                            disabled={!this.props.edit}
+                                            onChange={({target}) => this.handleMonto(detalle.id, target.value, index)}
+                                            min="0"
+                                        />
+                                    </Form.Field>    
+                                )}
+                            </Grid.Column>    
+                        )}
+                    </Grid>
+                </div>
             </Form>
         )
     }

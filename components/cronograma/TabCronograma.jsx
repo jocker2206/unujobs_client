@@ -30,7 +30,7 @@ export default class TabCronograma extends Component
 
     render() {
 
-        let { loading, edit, send, total } = this.props;
+        let { loading, edit, send, total, ubigeos, bancos } = this.props;
 
         let styles = {
             border: '0px'
@@ -40,9 +40,10 @@ export default class TabCronograma extends Component
             { 
                 menuItem: {key: 'info', icon: 'info circle', content: 'Datos Generales', disabled: edit }, 
                 render: () => 
-                    <Tab.Pane style={styles} loading={loading}>
+                    <Tab.Pane style={styles}>
                         <Work 
-                            bancos={this.props.bancos}
+                            bancos={bancos}
+                            ubigeos={ubigeos}
                             edit={this.props.edit}
                             historial={this.props.historial}
                             send={send}
@@ -55,8 +56,10 @@ export default class TabCronograma extends Component
             {
                 menuItem: {key: 'afectacion', icon: 'cogs', content: 'Afectacion Presupuestal', disabled: edit },
                 render: () => (
-                    <Tab.Pane style={styles} loading={loading}>
+                    <Tab.Pane style={styles}>
                         <Afectacion
+                            bancos={bancos}
+                            ubigeos={ubigeos}
                             edit={this.props.edit}
                             historial={this.props.historial}
                             send={send}
@@ -70,8 +73,10 @@ export default class TabCronograma extends Component
             {
                 menuItem: {key: 'remuneracion', icon: 'dollar', content: 'Remuneraciones', disabled: edit },
                 render: () => (
-                    <Tab.Pane style={styles} loading={loading}>
+                    <Tab.Pane style={styles}>
                         <Remuneracion
+                            bancos={bancos}
+                            ubigeos={ubigeos}
                             edit={this.props.edit}
                             historial={this.props.historial}
                             send={send}
@@ -85,8 +90,10 @@ export default class TabCronograma extends Component
             {
                 menuItem: {key: 'descuento', icon: 'arrow down cart', content: 'Descuentos', disabled: edit },
                 render: () => (
-                    <Tab.Pane style={styles} loading={loading}>
+                    <Tab.Pane style={styles}>
                         <Descuento
+                            bancos={bancos}
+                            ubigeos={ubigeos}
                             edit={this.props.edit}
                             historial={this.props.historial}
                             send={send}
@@ -100,8 +107,10 @@ export default class TabCronograma extends Component
             {
                 menuItem: {key: 'detallado', icon: 'briefcase', content: 'Descuentos Detallados', disabled: edit },
                 render: () => (
-                    <Tab.Pane style={styles} loading={loading}>
+                    <Tab.Pane style={styles}>
                         <Detallado
+                            bancos={bancos}
+                            ubigeos={ubigeos}
                             edit={this.props.edit}
                             historial={this.props.historial}
                             send={send}
@@ -115,8 +124,10 @@ export default class TabCronograma extends Component
             {
                 menuItem: {key: 'obligacion', icon: 'balance scale', content: 'Obligaciones Judicial', disabled: edit },
                 render: () => (
-                    <Tab.Pane style={styles} loading={loading}>
+                    <Tab.Pane style={styles}>
                         <Obligacion
+                            bancos={bancos}
+                            ubigeos={ubigeos}
                             edit={this.props.edit}
                             historial={this.props.historial}
                             send={send}
@@ -130,8 +141,10 @@ export default class TabCronograma extends Component
             {
                 menuItem: {key: 'sindicato', icon: 'users', content: 'Sindicatos', disabled: edit },
                 render: () => (
-                    <Tab.Pane style={styles} loading={loading}>
+                    <Tab.Pane style={styles}>
                         <Sindicato
+                            bancos={bancos}
+                            ubigeos={ubigeos}
                             edit={this.props.edit}
                             historial={this.props.historial}
                             send={send}
@@ -145,8 +158,10 @@ export default class TabCronograma extends Component
             {
                 menuItem: {key: 'aportacion', icon: 'certificate', content: 'Aportes Empleador', disabled: edit },
                 render: () => (
-                    <Tab.Pane style={styles} loading={loading}>
+                    <Tab.Pane style={styles}>
                         <Aportacion
+                            bancos={bancos}
+                            ubigeos={ubigeos}
                             edit={this.props.edit}
                             historial={this.props.historial}
                             send={send}

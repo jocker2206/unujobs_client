@@ -308,6 +308,8 @@ export default class Obligacion extends Component
                                 <hr/>
                             </div>
                         </div>
+
+
                     </div>    
                 )}
             </Form>

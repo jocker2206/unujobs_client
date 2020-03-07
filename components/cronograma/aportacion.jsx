@@ -9,6 +9,7 @@ export default class Remuneracion extends Component
 
 
     state = {
+        payload: [],
         type_aportaciones: [],
         aportaciones: [],
         type_aportacion_id: "",
@@ -47,6 +48,12 @@ export default class Remuneracion extends Component
         .catch(err => console.log(err.message));
     }
 
+    handleMonto = (id, monto, index) => {
+        let newPayload = this.state.payload;
+        newPayload[index] = { id, monto };
+        this.setState({ payload: newPayload });
+    }
+
     render() {
 
         let { aportaciones, type_aportacion_id, type_aportaciones, loader } = this.state;
@@ -82,7 +89,7 @@ export default class Remuneracion extends Component
                     <hr/>
                 </div>
 
-                {aportaciones.map(obj => 
+                {aportaciones.map((obj, index) => 
                     <div  key={`remuneracion-${obj.id}`}
                          className="col-md-3 mb-1"
                     >
@@ -96,8 +103,10 @@ export default class Remuneracion extends Component
                         <Form.Field>
                             <input type="number"
                                 step="any" 
-                                value={obj.monto}
+                                defaultValue={obj.monto}
                                 disabled={!this.props.edit}
+                                onChange={({target}) => this.handleMonto(obj.id, target.value, index)}
+                                min="0"
                             />
                         </Form.Field>
                     </div>

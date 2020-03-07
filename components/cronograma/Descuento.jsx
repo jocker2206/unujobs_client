@@ -9,6 +9,7 @@ export default class Descuento extends Component
 
     state = {
         descuentos: [],
+        payload: [],
         loader: true,
         total_bruto: 0,
         total_desct: 0,
@@ -44,13 +45,18 @@ export default class Descuento extends Component
         this.setState({ loader: false });
     }
 
+    handleMonto = (id, monto, index) => {
+        let newPayload = this.state.payload;
+        newPayload[index] = { id, monto };
+        this.setState({ payload: newPayload });
+    }
 
     render() {
 
         let { descuentos, total_bruto, total_desct, total_neto, base, loader } = this.state;
  
         return (
-            <form className="row">
+            <Form className="row">
 
                 <div className="col-md-12">
                     <div className="row justify-content-center">
@@ -81,7 +87,7 @@ export default class Descuento extends Component
                     <hr/>
                 </div>
 
-                {descuentos.map(obj => 
+                {descuentos.map((obj, index) => 
                     <div  key={`descuento-${obj.id}`}
                          className="col-md-3 mb-1"
                     >
@@ -95,13 +101,15 @@ export default class Descuento extends Component
                         <Form.Field>
                             <input type="number"
                                 step="any" 
-                                value={obj.monto}
+                                defaultValue={obj.monto}
                                 disabled={!obj.edit ? true : !this.props.edit}
+                                onChange={({target}) => this.handleMonto(obj.id, target.value, index)}
+                                min="0"
                             />
                         </Form.Field>
                     </div>
                 )}
-            </form>
+            </Form>
         )
     }
 

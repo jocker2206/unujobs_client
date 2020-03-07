@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { authentication } from '../../services/apis';
 import { Button, Form, Select, Icon } from 'semantic-ui-react';
 import { parseOptions } from '../../services/utils';
+import Show from '../show';
 
 
 export default class Remuneracion extends Component
@@ -9,23 +10,21 @@ export default class Remuneracion extends Component
 
 
     state = {
+        type_sindicatos: [],
         sindicatos: [],
-        aportaciones: [],
         sindicato_id: "",
         loader: true,
     }
 
 
     componentDidMount = async () => {
-        // await this.getAportaciones(this.props);
-        await this.getSindicatos();
-        await this.setState({ loader: false });
+        await this.getTypeSindicatos();
+        await this.getSindicatos(this.props);
     }
 
     componentWillReceiveProps = async (nextProps) => {
         if (nextProps.historial && nextProps.historial.id != this.props.historial.id) {
-            // await this.getAportaciones(nextProps);
-            await this.setState({ loader: false });
+            await this.getSindicatos(nextProps);
         }
     }
 
@@ -33,23 +32,24 @@ export default class Remuneracion extends Component
         this.setState({ [name]: value });
     }
 
-    getAportaciones = async (props) => {
+    getSindicatos = async (props) => {
+        this.setState({ loader: true });
         let { historial } = props;
-        await authentication.get(`historial/${historial.id}/aportacion`)
-        .then(async res => {
-            await this.setState({ aportaciones: res.data ? res.data : [] });
-        }).catch(err => console.log(err.message));
+        await authentication.get(`historial/${historial.id}/sindicato`)
+        .then(async res => await this.setState({ sindicatos: res.data ? res.data : [] }))
+        .catch(err => console.log(err.message));
+        this.setState({ loader: false });
     }
 
-    getSindicatos = async () => {
+    getTypeSindicatos = async () => {
         await authentication.get('sindicato')
-        .then(res => this.setState({ sindicatos: res.data }))
+        .then(res => this.setState({ type_sindicatos: res.data }))
         .catch(err => console.log(err.message));
     }
 
     render() {
 
-        let { sindicato_id, sindicatos, loader } = this.state;
+        let { sindicato_id, type_sindicatos, sindicatos, loader } = this.state;
  
         return (
             <Form className="row" loading={loader}>
@@ -60,7 +60,7 @@ export default class Remuneracion extends Component
                             <Select
                                 fluid
                                 placeholder="Select. Sindicato"
-                                options={parseOptions(sindicatos, ['sel-type', '', 'Select. Sindicato'], ['id', 'id', 'nombre'])}
+                                options={parseOptions(type_sindicatos, ['sel-type', '', 'Select. Sindicato'], ['id', 'id', 'nombre'])}
                                 name="sindicato_id"
                                 value={sindicato_id}
                                 onChange={(e, obj) => this.handleInput(obj)}
@@ -80,6 +80,29 @@ export default class Remuneracion extends Component
                 <div className="col-md-12">
                     <hr/>
                 </div>
+
+                {sindicatos.map((obj, index) => 
+                <div className="col-md-4" key={`sindicato-${obj.id}`}>
+                    <div className="row">
+                            <div className="col-md-10">
+                                <Button fluid>
+                                    {obj.nombre} 
+                                    <Show condicion={obj.porcentaje}>
+                                        <span className="ml-2 badge badge-dark">%{obj.porcentaje}</span>
+                                    </Show>
+                                    <Show condicion={!obj.porcentaje}>
+                                        <span className="ml-2 badge badge-dark">S./{obj.monto}</span>
+                                    </Show>
+                                </Button>
+                            </div>    
+                            <div className="col-md-2">
+                                <Button color="red" fluid>
+                                    <i className="fas fa-trash-alt"></i>
+                                </Button>
+                            </div>
+                        </div>
+                    </div>
+                )}
 
             </Form>
         )

@@ -51,10 +51,6 @@ export default class Work extends Component {
         this.setState({ work: newWork });
     }
 
-    fireSent = () => {
-        if (typeof this.props.fireSent == 'function') this.props.fireSent();
-    }
-
     updateWork = async () => {
         this.setState({ error: "" });
         let form = Object.assign({}, this.state.work);
@@ -107,13 +103,19 @@ export default class Work extends Component {
                             </Form.Field>
 
                             <Form.Field>
-                                <b>N° Teléfono</b>
-                                <input type="text"  
-                                    name="phone"
-                                    value={work.phone ? work.phone : ""}
+                                <b>Ubigeo</b>
+                                <select name="ubigeo_id"
                                     disabled={!this.props.edit}
+                                    value={work.ubigeo_id}
                                     onChange={this.handleInput}
-                                />
+                                >
+                                    <option value="">Select. Ubigeo</option>
+                                    {this.props.ubigeos.map(obj => 
+                                        <option value={obj.id} key={`ubigeo-${obj.id}`}>
+                                            {obj.departamento} | {obj.provincia} | {obj.distrito}
+                                        </option>    
+                                    )}
+                                </select>
                             </Form.Field>
 
                             <Form.Field>
@@ -133,7 +135,7 @@ export default class Work extends Component {
                                 <b>Apellido Materno</b>
                                 <input type="text" 
                                     name="ape_materno"
-                                    value={work.ape_materno}
+                                    defaultValue={work.ape_materno}
                                     disabled={true}
                                 />
                             </Form.Field>
@@ -155,14 +157,14 @@ export default class Work extends Component {
                             </Form.Field>
 
                             <Form.Field>
-                                <b>Correo Electrónico</b>
-                                <input type="text" 
-                                    name="email"
-                                    value={work.email ? work.email : ''}
+                                <b>N° Teléfono</b>
+                                <input type="text"  
+                                    name="phone"
+                                    value={work.phone ? work.phone : ""}
                                     disabled={!this.props.edit}
                                     onChange={this.handleInput}
                                 />
-                            </Form.Field>             
+                            </Form.Field>            
                         </div>
 
                         <div className="col-md-3">
@@ -170,7 +172,7 @@ export default class Work extends Component {
                                 <b>Nombres</b>
                                 <input type="text" 
                                     name="nombres"
-                                    value={work.nombres}
+                                    defaultValue={work.nombres}
                                     disabled={true}
                                 />
                             </Form.Field>
@@ -184,6 +186,16 @@ export default class Work extends Component {
                                     onChange={this.handleInput}
                                 />
                             </Form.Field>
+
+                            <Form.Field>
+                                <b>Correo Electrónico</b>
+                                <input type="text" 
+                                    name="email"
+                                    value={work.email ? work.email : ''}
+                                    disabled={!this.props.edit}
+                                    onChange={this.handleInput}
+                                />
+                            </Form.Field> 
                         </div>
 
                         <div className="col-md-3">
@@ -191,7 +203,7 @@ export default class Work extends Component {
                                 <b>N° Documento</b>
                                 <input type="text" 
                                     name="numero_de_documento"
-                                    value={work.numero_de_documento}
+                                    defaultValue={work.numero_de_documento}
                                     disabled={true}
                                 />
                             </Form.Field>

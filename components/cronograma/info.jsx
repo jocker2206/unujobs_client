@@ -20,9 +20,10 @@ export default class Info extends Component {
             like: "",
             page: 1,
             cronograma_id: '',
+            ubigeos: [],
             last_page: 1,
             edit: false,
-            loading: false,
+            loading: true,
             cronograma: {
                 year: 2019,
                 mes: 9,
@@ -62,6 +63,7 @@ export default class Info extends Component {
         this.getBancos();
         this.getPlanillas();
         this.getAFPs();
+        this.getUbigeo();
     }
 
     componentWillUpdate = (nextProps, nextState) => {
@@ -90,6 +92,12 @@ export default class Info extends Component {
     getBancos = () => {
         authentication.get(`banco`)
         .then(res => this.setState({ bancos: res.data }))
+        .catch(err => console.log(err.message));
+    }
+
+    getUbigeo = async () => {
+        await authentication.get('ubigeo')
+        .then(res => this.setState({ ubigeos: res.data }))
         .catch(err => console.log(err.message));
     }
 
@@ -265,7 +273,7 @@ export default class Info extends Component {
             confirmButtonText: "Continuar",
             showCancelButton: true
         });
-        if (value) this.setState({ loading: true, send: true });
+        if (value) await this.setState({ loading: true, send: true });
     }
 
     render() {
@@ -288,11 +296,11 @@ export default class Info extends Component {
             <Modal show={show}
                 isClose={this.close}
                 disabled={this.state.edit || this.state.block}
-                md="11"
+                md="12"
                 titulo={`INFORMACIÓN DE "${historial && historial.work ? historial.work.nombre_completo : 'NO HAY TRABAJADOR DISPONIBLE'}"`}
             >
                     <Card.Body style={{ height: "85%", overflowY: "auto" }}>
-                        <Form>
+                        <Form loading={loading}>
                             <Row>
                                 <div className="col-md-3">
                                     <Form.Field> 
@@ -409,6 +417,7 @@ export default class Info extends Component {
                                     <TabCronograma
                                         historial={historial}
                                         bancos={this.state.bancos}
+                                        ubigeos={this.state.ubigeos}
                                         edit={this.state.edit}
                                         loading={this.state.loading}
                                         send={this.state.send}
@@ -419,9 +428,9 @@ export default class Info extends Component {
                                     />  
                                 </Show>          
                                 
-                                <Show condicion={!this.state.total}>
+                                <Show condicion={!this.state.loading && !this.state.total}>
                                     <div className="w-100 text-center">
-                                        <h4 className="mt-5">No se encotró trabajadores</h4>
+                                        <h4 className="mt-5">No se encontró trabajadores</h4>
                                     </div>
                                 </Show>                    
                             </Row>
