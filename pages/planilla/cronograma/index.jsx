@@ -5,6 +5,7 @@ import btoa from 'btoa';
 import Info from '../../../components/cronograma/info';
 import Create from '../../../components/cronograma/create';
 import { authentication } from '../../../services/apis';
+import { AUTH, AUTHENTICATE } from '../../../services/auth';
 import { Form, Button, Icon } from 'semantic-ui-react';
 import { BtnFloat } from '../../../components/Utils'
 
@@ -24,9 +25,10 @@ export default class Cronograma extends Component {
         this.getOption = this.getOption.bind(this);
     }
 
-    static getInitialProps(props) {
-        let {query, pathname} = props;
-        return {query, pathname}
+    static getInitialProps  = async (ctx) => {
+        await AUTHENTICATE(ctx);
+        let {query, pathname} = ctx;
+        return {query, pathname }
     }
 
     async componentDidMount() {
