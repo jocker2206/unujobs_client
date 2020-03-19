@@ -1,8 +1,8 @@
 import React, { Component, Fragment } from 'react';
 import Modal from '../modal';
 import { Card, Row } from 'react-bootstrap';
-import { authentication } from '../../services/apis';
-import atob from 'atob';
+import { unujobs } from '../../services/apis';
+import base64url from 'base64-url';
 import Swal from 'sweetalert2';
 import { CSVLink } from "react-csv";
 import { parseOptions } from '../../services/utils';
@@ -54,7 +54,7 @@ export default class Info extends Component {
 
     async componentDidMount() {
         let { query } = this.props;
-        let id = query.info ? await atob(query.info) : "";
+        let id = query.info ?  base64url.decode(query.info) : "";
         await this.setState({ cronograma_id: id });
         if (this.props.show && !Object.keys(this.state.historial).length) {
             this.getCronograma(this.props, this.state);
@@ -75,7 +75,7 @@ export default class Info extends Component {
 
     getPlanillas = async () => {
         this.setState({ loading: true });
-        await authentication.get(`planilla`)
+        await unujobs.get(`planilla`)
         .then(res => {
             let planillas = res.data ? res.data : []
             this.setState({ planillas });
@@ -84,19 +84,19 @@ export default class Info extends Component {
     }
 
     getAFPs = () => {
-        authentication.get(`cronograma/${this.state.cronograma_id}/afp`)
+        unujobs.get(`cronograma/${this.state.cronograma_id}/afp`)
         .then(res => this.setState({ afps: res.data }))
         .catch(err => console.log(err.message));
     }
 
     getBancos = () => {
-        authentication.get(`banco`)
+        unujobs.get(`banco`)
         .then(res => this.setState({ bancos: res.data }))
         .catch(err => console.log(err.message));
     }
 
     getUbigeo = async () => {
-        await authentication.get('ubigeo')
+        await unujobs.get('ubigeo')
         .then(res => this.setState({ ubigeos: res.data }))
         .catch(err => console.log(err.message));
     }
@@ -149,7 +149,7 @@ export default class Info extends Component {
             let { page, cargo_id, type_categoria_id, afp_id, like, exports } = state;
             let id = query.info ? atob(query.info) : "";
             let params = `page=${page}&cargo_id=${cargo_id}&type_categoria_id=${type_categoria_id}&afp_id=${afp_id}&like=${like}&export=${exports.click}`;
-            await authentication.get(`cronograma/${id}?${params}`)
+            await unujobs.get(`cronograma/${id}?${params}`)
             .then(async res => {
                 if (exports.click) {
                     let { headers, content } = res.data;
@@ -184,7 +184,7 @@ export default class Info extends Component {
     sendEmail = async () => {
         let  { historial } = this.state;
         this.setState({ block: true });
-        await authentication.post(`historial/${historial.id}/send_boleta`)
+        await unujobs.post(`historial/${historial.id}/send_boleta`)
         .then(async res => {
             let { success, message } = res.data;
             let icon = success ? 'success' : 'error';
@@ -197,7 +197,7 @@ export default class Info extends Component {
 
     getCargos = (state) => {
         let { cronograma } = state;
-        authentication.get(`cronograma/${cronograma.id}/cargo`)
+        unujobs.get(`cronograma/${cronograma.id}/cargo`)
         .then(async res => {
             this.setState({ cargos: res.data });
         }).catch(err =>  console.log(err.message));
@@ -205,7 +205,7 @@ export default class Info extends Component {
 
     gettype_categorias = (state) => {
         let { cargo_id } = state;
-        authentication.get(`cargo/${cargo_id}`)
+        unujobs.get(`cargo/${cargo_id}`)
         .then(async res => {
             let { type_categorias } = res.data;
             this.setState({ type_categorias: type_categorias ? type_categorias : [] });
@@ -264,6 +264,10 @@ export default class Info extends Component {
 
     updatingHistorial = async (newHistorial) => {
         await this.setState({ historial: newHistorial, edit: false });
+    }
+
+    setEdit = async (newEdit) => {
+        await this.setState({ edit: newEdit });
     }
 
     handleConfirm = async (e) => {
@@ -423,6 +427,7 @@ export default class Info extends Component {
                                         send={this.state.send}
                                         total={this.state.total}
                                         sentEnd={this.sentEnd}
+                                        setEdit={this.setEdit}
                                         updatingHistorial={this.updatingHistorial}
                                         menu={{ secondary: true, pointing: true }}
                                     />  

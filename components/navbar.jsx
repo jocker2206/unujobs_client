@@ -6,7 +6,6 @@ import Cookies from 'js-cookie';
 import Swal from 'sweetalert2';
 import { connect } from 'react-redux';
 import initStore from '../storage/store';
-import { authsActionsTypes } from '../storage/actions/authsActions';
 
 
 class Navbar extends Component {

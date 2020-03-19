@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { Form, Grid, Checkbox, Select, Button, Icon, Divider, Message, Input } from 'semantic-ui-react';
 import Show from '../show';
-import { authentication } from '../../services/apis';
+import { unujobs } from '../../services/apis';
 import { parseOptions } from '../../services/utils';
 import Swal from 'sweetalert2';
 
@@ -35,7 +35,7 @@ export default class CreateCronograma extends  Component{
     }
 
     getPlanillas = async () => {
-        await authentication.get('planilla')
+        await unujobs.get('planilla')
         .then(res => this.setState({ planillas: res.data }))
         .catch(err => console.log(err.message));
     }
@@ -49,7 +49,7 @@ export default class CreateCronograma extends  Component{
         await this.setState({ loading: true });
         let { fireCookie } = this.props;
         // send
-        authentication.post('cronograma', this.state)
+        unujobs.post('cronograma', this.state)
         .then(async res => {
             let { success, message, payload } = res.data;
             let icon = success ? 'success' : 'error';

@@ -38,7 +38,7 @@ class Navigation extends Component {
         this.setState(async (state, props) => {
             let newOptions = await state.newOptions.filter(async opt => {
                 let isActive = opt.id == id || props.current == `/${opt.url}` ? true : false;
-                let isParent = opt.modulos && opt.modulos.length > 0;
+                let isParent = opt.modules && opt.modules.length > 0;
                 // actulizamos el active de las opciones
                 opt.active = isActive;
                 // verificamos que tengan hijos y si el padre esta activo
@@ -59,7 +59,7 @@ class Navigation extends Component {
 
     async ActiveChildren(childID, index, e) {
         let option = this.state.newOptions[index];
-        await option.modulos.map(ch => {
+        await option.modules.map(ch => {
             let isActive = ch.id == childID;
             ch.active = isActive;
             return ch;
@@ -80,7 +80,7 @@ class Navigation extends Component {
             let options = await state.newOptions.map(async opt => {
                 if(opt.path == parent) {
                     opt.toggle = true;
-                    opt.modulos = await this.activeModule(opt, child);
+                    opt.modules = await this.activeModule(opt, child);
                 }
                 // retornar
                 return opt;
@@ -90,9 +90,8 @@ class Navigation extends Component {
     }
 
     activeModule = async (option, child) => {
-        let modules = await option.modulos.filter(obj => {
+        let modules = await option.modules.filter(obj => {
             obj.active = child == obj.alias ? true : false;
-            console.log(obj.alias, " == ", child);
             return obj;
         });
         // modules
@@ -108,15 +107,15 @@ class Navigation extends Component {
                     key={`option-sidebar-${obj.id}`}
                 >
                     <span style={{ cursor: 'pointer' }} className="menu-link" onClick={this.handleClick.bind(this, obj.id)}>
-                      <span className={`menu-icon ${obj.icono}`}></span>
+                      <span className={`menu-icon ${obj.icon}`}></span>
                       <span className="menu-text">{obj.name}</span>{" "}
                       <span className="badge badge-xs badge-warning">{obj.version}</span>
                     </span>
                     {
-                        obj.modulos ? 
+                        obj.modules ? 
                         <ul className="menu">
                             <li className="menu-subhead">{obj.name}</li>
-                            {obj.modulos.map( mod => 
+                            {obj.modules.map( mod => 
                                 <li className="menu-item" key={`childre-${mod.id}`}>
                                     <NavLink url={`${mod.slug}`} active={mod.active}>
                                         { mod.name }

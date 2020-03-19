@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import { authentication } from '../../services/apis';
+import { unujobs } from '../../services/apis';
 import { Form, Button, Select, Message } from 'semantic-ui-react';
 import { parseOptions } from '../../services/utils';
 import Show from '../show';
@@ -55,7 +55,7 @@ export default class Work extends Component {
         this.setState({ error: "" });
         let form = Object.assign({}, this.state.work);
         form._method = 'PUT';
-        await authentication.post(`work/${this.state.work.id}`, form)
+        await unujobs.post(`work/${this.state.work.id}`, form)
         .then(async res => {
             let { success, message } = res.data;
             let newHistorial = Object.assign({}, this.state.history);

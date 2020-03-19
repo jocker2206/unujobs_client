@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { authentication } from '../../services/apis';
+import { unujobs } from '../../services/apis';
 import { Button, Form, Select, Icon } from 'semantic-ui-react';
 import { parseOptions } from '../../services/utils';
 
@@ -35,7 +35,7 @@ export default class Remuneracion extends Component
     getAportaciones = async (props) => {
         await this.setState({ loader: true });
         let { historial } = props;
-        await authentication.get(`historial/${historial.id}/aportacion`)
+        await unujobs.get(`historial/${historial.id}/aportacion`)
         .then(async res => {
             await this.setState({ aportaciones: res.data ? res.data : [] });
         }).catch(err => console.log(err.message));
@@ -43,7 +43,7 @@ export default class Remuneracion extends Component
     }
 
     getTypeAportaciones = async () => {
-        await authentication.get('type_aportacion')
+        await unujobs.get('type_aportacion')
         .then(res => this.setState({ type_aportaciones: res.data }))
         .catch(err => console.log(err.message));
     }

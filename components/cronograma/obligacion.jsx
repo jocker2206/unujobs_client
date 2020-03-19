@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { authentication } from '../../services/apis';
+import { unujobs } from '../../services/apis';
 import { Button, Form, Select, Icon, Checkbox } from 'semantic-ui-react';
 import { parseOptions } from '../../services/utils';
 import Show from '../show';
@@ -56,7 +56,7 @@ export default class Obligacion extends Component
     getObligaciones = async (props) => {
         this.setState({ loader: true });
         let { historial } = props;
-        await authentication.get(`historial/${historial.id}/obligacion`)
+        await unujobs.get(`historial/${historial.id}/obligacion`)
         .then(async res => {
             await this.setState({ obligaciones: res.data ? res.data : [] });
         }).catch(err => console.log(err.message));

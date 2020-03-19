@@ -29,10 +29,10 @@ export default class Modal extends Component {
   }
 
   render() {
-    let { md, disabled = false } = this.props;
+    let { md, disabled = false, display } = this.props;
     let { isShow } = this.state;
 
-    if (isShow) {
+    if (isShow || display) {
       return (
         <div
           style={{
@@ -43,10 +43,10 @@ export default class Modal extends Component {
             top: "0px",
             left: "0px",
             zIndex: "1050",
-            display: "flex",
+            display: display ? display : 'flex',
             justifyContent: "center",
             alignItems: "center",
-            paddingTop: "0.5em"
+            paddingTop: "0.5em",
           }}
         >
           <div

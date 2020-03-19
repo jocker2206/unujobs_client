@@ -1,6 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import { Button, Grid, Accordion, Form, Icon, Label } from 'semantic-ui-react';
-import { authentication } from '../../services/apis';
+import { unujobs } from '../../services/apis';
 import Show from '../show';
 import Boleta from './boleta';
 
@@ -22,14 +22,14 @@ export default class ConfigBoletas extends Component
 
     getPlanilla = async () => {
         let { payload } = this.props;
-        await authentication.get(`planilla/${payload.planilla_id}`)
+        await unujobs.get(`planilla/${payload.planilla_id}`)
         .then(res => this.setState({ planilla: res.data }))
         .catch(err => console.log(err.message));
     }
 
     getTypeCategoria = async () => {
         let { payload } = this.props;
-        await authentication.get(`cronograma/${payload.id}/type_categoria`)
+        await unujobs.get(`cronograma/${payload.id}/type_categoria`)
         .then(async res => await this.setState({ type_categorias: res.data }))
         .catch(err => console.log(err.message));
     }

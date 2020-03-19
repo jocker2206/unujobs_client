@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
-import { authentication } from '../../services/apis';
+import { unujobs } from '../../services/apis';
 import { Button, Form, Input } from 'semantic-ui-react';
+import Swal from 'sweetalert2';
 
 
 export default class Remuneracion extends Component
@@ -26,12 +27,16 @@ export default class Remuneracion extends Component
         if (nextProps.historial && nextProps.historial.id != this.props.historial.id) {
             await this.getRemuneraciones(nextProps);
         }
+        // update 
+        if (nextProps.send && nextProps.send != this.props.send) {
+            await this.updateRemuneraciones();
+        }
     }
 
     getRemuneraciones = async (props) => {
         this.setState({ loader: true });
         let { historial } = props;
-        await authentication.get(`historial/${historial.id}/remuneracion`)
+        await unujobs.get(`historial/${historial.id}/remuneracion`)
         .then(res => {
             let { remuneraciones, total_bruto, total_desct, total_neto, base } = res.data;
             this.setState({ 
@@ -50,6 +55,25 @@ export default class Remuneracion extends Component
         newPayload[index] = { id, monto };
         this.setState({ payload: newPayload });
     }
+    
+    updateRemuneraciones = async () => {
+        const form = new FormData();
+        form.append('_method', 'PUT');
+        form.append('remuneraciones', JSON.stringify(this.state.payload));
+        unujobs.post(`remuneracion/${this.props.historial.id}/all`, form)
+        .then(async res => {
+            let { success, message, body } = res.data;
+            let icon = success ? 'success' : 'error';
+            await Swal.fire({ icon, text: message });
+            if (success) {
+                let { total_bruto, total_desct, base, total_neto } = body;
+                this.setState({ total_bruto, total_desct, base, total_neto });
+                this.props.setEdit(false);
+            }
+        })
+        .catch(err => console.log(err.message));
+        this.props.fireSent();
+    }
 
     render() {
 
@@ -62,12 +86,12 @@ export default class Remuneracion extends Component
                     <div className="row justify-content-center">
                         <b className="col-md-3">
                             <Button basic loading={loader} fluid color="black">
-                                {loader ? 'Cargando...' : `Total Descuentos: S/ ${total_bruto}`}
+                                {loader ? 'Cargando...' : `Total Bruto: S/ ${total_bruto}`}
                             </Button>
                         </b>
                         <b className="col-md-3">
                             <Button basic loading={loader} fluid color="black">
-                                {loader ? 'Cargando...' : `Total Bruto: S/ ${total_desct}`}
+                                {loader ? 'Cargando...' : `Total Descuentos: S/ ${total_desct}`}
                             </Button>
                         </b>
                         <b className="col-md-3">

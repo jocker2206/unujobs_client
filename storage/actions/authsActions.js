@@ -1,5 +1,5 @@
 import NextCookies from 'next-cookies';
-import { authentication } from '../../services/apis';
+import { authentication, unujobs } from '../../services/apis';
 
 
 export const authsActionsTypes = {

@@ -3,11 +3,13 @@ import Datatable from '../../../components/datatable';
 import Router from 'next/router';
 import btoa from 'btoa';
 import Info from '../../../components/cronograma/info';
+import Reports from '../../../components/cronograma/reports';
 import Create from '../../../components/cronograma/create';
-import { authentication } from '../../../services/apis';
+import { unujobs } from '../../../services/apis';
 import { AUTH, AUTHENTICATE } from '../../../services/auth';
 import { Form, Button, Icon } from 'semantic-ui-react';
-import { BtnFloat } from '../../../components/Utils'
+import { BtnFloat } from '../../../components/Utils';
+import Show from '../../../components/show';
 
 export default class Cronograma extends Component {
 
@@ -49,7 +51,7 @@ export default class Cronograma extends Component {
     getCronogramas = async () => {
         this.setState({loading: true});
         let {mes, year} = this.state;
-        await authentication.get(`cronograma?mes=${mes}&year=${year}`).then(res => {
+        await unujobs.get(`cronograma?mes=${mes}&year=${year}`).then(res => {
             let {data} = res.data;
             this.setState({cronogramas: data});
         }).catch(err => console.log(err.message));
@@ -172,18 +174,24 @@ export default class Cronograma extends Component {
                         Router.push({pathname, query});
                     }}
                 />
+                {/* create cronograma */}
+                <Create show={query.create}
+                    isClose={(e) => Router.push({ pathname, query: { create: null }})}
+                />
+                {/* reportes */}
+                <Show condicion={query.report}>
+                    <Reports show={true}
+                        query={query}
+                        pathname={pathname}
+                        isClose={(e) => Router.push({ pathname, query: { report: "" }})}
+                    />
+                </Show>
                 {/* event create cronograma */}
                 <BtnFloat
                     onClick={(e) => Router.push({ pathname, query:  { create: "true" }})}
                 >
                     <i className="fas fa-plus"></i>
                 </BtnFloat>
-                {/* create cronograma */}
-                <Create show={query.create}
-                    isClose={(e) => Router.push({ pathname, query: { create: null }})}
-                >
-
-                </Create>
             </div>
         )
     }

@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { authentication } from '../../services/apis';
+import { unujobs } from '../../services/apis';
 import { Button, Form, Select, Icon } from 'semantic-ui-react';
 import { parseOptions } from '../../services/utils';
 import Show from '../show';
@@ -35,14 +35,14 @@ export default class Remuneracion extends Component
     getSindicatos = async (props) => {
         this.setState({ loader: true });
         let { historial } = props;
-        await authentication.get(`historial/${historial.id}/sindicato`)
+        await unujobs.get(`historial/${historial.id}/sindicato`)
         .then(async res => await this.setState({ sindicatos: res.data ? res.data : [] }))
         .catch(err => console.log(err.message));
         this.setState({ loader: false });
     }
 
     getTypeSindicatos = async () => {
-        await authentication.get('sindicato')
+        await unujobs.get('sindicato')
         .then(res => this.setState({ type_sindicatos: res.data }))
         .catch(err => console.log(err.message));
     }

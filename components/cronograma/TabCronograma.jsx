@@ -28,6 +28,10 @@ export default class TabCronograma extends Component
         }
     }
 
+    setEdit = async (newEdit) => {
+        await this.props.setEdit(newEdit);
+    }
+
     render() {
 
         let { loading, edit, send, total, ubigeos, bancos } = this.props;
@@ -82,7 +86,7 @@ export default class TabCronograma extends Component
                             send={send}
                             total={total}
                             fireSent={this.onSend}
-                            updatedHistorial={this.updatedHistorial}
+                            setEdit={this.setEdit}
                         /> 
                     </Tab.Pane>
                 )
@@ -99,7 +103,7 @@ export default class TabCronograma extends Component
                             send={send}
                             total={total}
                             fireSent={this.onSend}
-                            updatedHistorial={this.updatedHistorial}
+                            setEdit={this.setEdit}
                         /> 
                     </Tab.Pane>
                 )

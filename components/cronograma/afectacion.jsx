@@ -1,7 +1,8 @@
 import React, {Component} from 'react';
-import { authentication } from '../../services/apis';
-import { Form, Select, Message, Input, Icon, TextArea } from 'semantic-ui-react';
+import { unujobs } from '../../services/apis';
+import { Form, Select, Message, Input, TextArea, Button } from 'semantic-ui-react';
 import Show from '../show';
+import ConsultaIframe from '../consultaIframe';
 import { parseOptions } from '../../services/utils';
 import storage from '../../services/storage.json';
 import Swal from 'sweetalert2';
@@ -21,6 +22,8 @@ export default class Afectacion extends Component {
         dependencias: [],
         errors: {},
         error_message: "",
+        ssp: 'none',
+        essalud: 'none'
     };
 
 
@@ -59,13 +62,13 @@ export default class Afectacion extends Component {
     }
 
     getDependencias = async () => {
-        await authentication.get('dependencia')
+        await unujobs.get('dependencia')
         .then(res => this.setState({ dependencias: res.data }))
         .catch(err => console.log(err.message));
     }
 
     getAFPs = async () => {
-        await authentication.get(`afp`).then(res => this.setState({
+        await unujobs.get(`afp`).then(res => this.setState({
             afps: res.data ? res.data.data : []
         })).catch(err => console.log(err.message));
     }
@@ -96,14 +99,14 @@ export default class Afectacion extends Component {
 
     getMetas = () => {
         let {history} = this.state;
-        authentication.get(`cronograma/${history.cronograma_id}/meta`)
+        unujobs.get(`cronograma/${history.cronograma_id}/meta`)
         .then(res => this.setState({metas: res.data}))
         .catch(err => console.log(err.message));
     }
 
     getCargos = (state) => {
         let {history} = state;
-        authentication.get(`cronograma/${history.cronograma_id}/cargo`)
+        unujobs.get(`cronograma/${history.cronograma_id}/cargo`)
         .then(res => {
             this.setState({ cargos: res.data ? res.data : [] });
         }).catch(err => console.log(err.message));
@@ -114,12 +117,13 @@ export default class Afectacion extends Component {
         let { history } = this.state;
         let form = new FormData(document.getElementById('form-afectacion'));
         form.append('afp_id', history.afp_id);
+        form.append('type_afp_id', history.type_afp_id);
         form.append('meta_id', history.meta_id);
         form.append('dependencia_id', history.dependencia_id);
         form.append('cargo_id', history.cargo_id);
         form.append('type_categoria_id', history.type_categoria_id);
         form.append('_method', 'PUT');
-        await authentication.post(`historial/${this.state.history.id}`, form)
+        await unujobs.post(`historial/${this.state.history.id}`, form)
         .then(async res => {
             let { success, message } = res.data;
             let icon = success ? 'success' : 'error';
@@ -161,6 +165,24 @@ export default class Afectacion extends Component {
                         <Message color="red">
                             Error: {error_message}
                         </Message>
+                    </div>
+                </Show>
+
+                <Show condicion={this.props.edit}>
+                    <div className="col-md-12">
+                        <Button color="teal" basic
+                            onClick={(e) => this.setState({ ssp: 'flex' })}
+                        >
+                            Consulta SSP
+                        </Button>
+
+                        <Button color="teal" basic
+                            onClick={(e) => this.setState({ essalud: 'flex' })}
+                        >
+                            Consulta Essalud
+                        </Button>
+
+                        <hr/>
                     </div>
                 </Show>
 
@@ -427,6 +449,22 @@ export default class Afectacion extends Component {
                         />
                     </Form.Field>
                 </div>
+
+
+                {/* Render tools */}
+                <ConsultaIframe 
+                    isClose={(e) => this.setState({ ssp: 'none' })}
+                    display={this.state.ssp}
+                    titulo="Consulta al Sistema Privado de Pensiones"
+                    url="https://www2.sbs.gob.pe/afiliados/paginas/Consulta.aspx"
+                />
+                <ConsultaIframe 
+                    isClose={(e) => this.setState({ essalud: 'none' })}
+                    md="8"
+                    display={this.state.essalud}
+                    titulo="Consulta al Sistema de  Essalud"
+                    url="http://ww4.essalud.gob.pe:7777/acredita/"
+                />
             </Form>
         )
     }

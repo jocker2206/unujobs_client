@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { authentication } from '../../services/apis';
+import { unujobs } from '../../services/apis';
 import { Button, Form, Select, Icon, Grid } from 'semantic-ui-react';
 import { parseOptions } from '../../services/utils';
 
@@ -37,14 +37,14 @@ export default class Remuneracion extends Component
 
     getDetalles = async (props) => {
         let { historial } = props;
-        await authentication.get(`historial/${historial.id}/detalle`)
+        await unujobs.get(`historial/${historial.id}/detalle`)
         .then(async res => {
             await this.setState({ detalles: res.data ? res.data : [] });
         }).catch(err => console.log(err.message));
     }
 
     getTypeDetalles = async () => {
-        await authentication.get('type_detalle')
+        await unujobs.get('type_detalle')
         .then(res => this.setState({ type_detalles: res.data }))
         .catch(err => console.log(err.message));
     }
