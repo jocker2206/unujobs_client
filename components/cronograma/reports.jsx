@@ -53,10 +53,15 @@ export default class Reports extends Component {
             ],
             pago_id: "",
             negativos: [
-                { key: "0", value: "1", text: "Select valores negativos" },
-                { key: "1", value: "0", text: "Select valores positivos" }
+                { key: "1", value: "1", text: "Select. Valores negativos" },
+                { key: "0", value: "0", text: "Select. Valores positivos" }
             ],
             negativo: "0",
+            netos: [
+                { key: "0", value: "0", text: "Select. Monto brutos" },
+                { key: "1", value: "1", text: "Select. Monto netos" }
+            ],
+            neto: "0",
             params: {},
             imagen: ""
         };
@@ -213,8 +218,8 @@ export default class Reports extends Component {
     }
 
     getStringQuery = () => {
-        let { meta_id } = this.state;
-        return `meta_id=${meta_id}`;
+        let { meta_id, neto } = this.state;
+        return `meta_id=${meta_id}&neto=${neto}`;
     }
 
     setParams = async () => {

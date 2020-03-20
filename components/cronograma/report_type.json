@@ -9,7 +9,8 @@
         { "key": "type_descuento", "placeholder": "Select Tip. Descuento", "name": "type_descuento_id", "resource": "type_descuentos", "index": ["key", "id", "descripcion"] },
         { "key": "type_detalle", "placeholder": "Select Tip. Detalle", "name": "type_detalle_id", "resource": "type_detalles", "index": ["key", "id", "descripcion"] },
         { "key": "type_aportacion", "placeholder": "Select Tip. Aportación", "name": "type_aportacion_id", "resource": "type_aportaciones", "index": ["key", "id", "descripcion"] },
-        { "key": "negativo", "placeholder": "Select Condicion", "name": "negativo", "resource": "negativos", "index": ["key", "value", "text"] }
+        { "key": "negativo", "placeholder": "Select Condicion", "name": "negativo", "resource": "negativos", "index": ["key", "value", "text"] },
+        { "key": "neto", "placeholder": "Select Condicion", "name": "neto", "resource": "netos", "index": ["key", "value", "text"] }
     ],
     "data": [
         {
@@ -319,7 +320,28 @@
             "key": "ejecucion",
             "value": "ejecucion",
             "text": "Reporte de Ejecucion de Planilla",
-            "icon": "/img/report-simple.png"
+            "icon": "/img/report-simple.png",
+            "buttons": [
+                { 
+                    "key": "view", 
+                    "text": "Generar PDF", 
+                    "icon": "fas fa-file-alt", 
+                    "color": "red", 
+                    "url": "pdf/ejecucion/{cronograma_id}", 
+                    "params": ["cronograma_id"],
+                    "action": "link"
+                },
+                { 
+                    "key": "view", 
+                    "text": "Generar pago PDF", 
+                    "icon": "fas fa-file-alt", 
+                    "color": "red", 
+                    "url": "pdf/ejecucion/{cronograma_id}/pago", 
+                    "params": ["cronograma_id"],
+                    "action": "link"
+                }
+            ],
+            "filters": ["neto"]
         }
     ]
 }
