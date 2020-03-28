@@ -3,7 +3,7 @@
         { "key": "meta", "placeholder": "Select. Meta", "name": "meta_id", "resource": "metas", "index": ["id", "id", "metaID"] },
         { "key": "cargo", "placeholder": "Select. Cargo", "name": "cargo_id", "resource": "cargos", "index": ["id", "id", "descripcion"] },
         { "key": "categoria", "placeholder": "Select. categoria", "name": "type_categoria_id", "resource": "type_categorias", "index": ["id", "id", "descripcion"] },
-        { "key": "afp", "placeholder": "Select. AFP", "name": "afp_id", "resource": "afps", "index": ["id", "id", "nombre"] },
+        { "key": "afp", "placeholder": "Select. AFP", "name": "afp_id", "resource": "afps", "index": ["afp_id", "afp_id", "afp"] },
         { "key": "pay", "placeholder": "Pago en Cheque", "name": "pago_id", "resource": "pagos", "index": ["key", "value", "text"] },
         { "key": "type_remuneracion", "placeholder": "Select Tip. Remuneración", "name": "type_remuneracion_id", "resource": "type_remuneraciones", "index": ["key", "id", "alias"] },
         { "key": "type_descuento", "placeholder": "Select Tip. Descuento", "name": "type_descuento_id", "resource": "type_descuentos", "index": ["key", "id", "descripcion"] },
@@ -50,7 +50,7 @@
                     }
                 }
             ],
-            "filters": ["meta"]
+            "filters": ["meta", "cargo"]
         },
         {
             "key": "boleta",
@@ -71,7 +71,7 @@
                     }
                 }
             ],
-            "filters": ["meta", "cargo", "categoria", "afp"]
+            "filters": ["meta", "cargo"]
         },
         {
             "key": "pago",

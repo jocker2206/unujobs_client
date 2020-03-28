@@ -151,26 +151,14 @@ export default class Info extends Component {
             let params = `page=${page}&cargo_id=${cargo_id}&type_categoria_id=${type_categoria_id}&afp_id=${afp_id}&like=${like}&export=${exports.click}`;
             await unujobs.get(`cronograma/${id}?${params}`)
             .then(async res => {
-                if (exports.click) {
-                    let { headers, content } = res.data;
-                    let newExport = Object.assign({}, exports);
-                    newExport.headers = headers;
-                    newExport.content = content;
-                    this.setState({ exports: newExport, block: true });
-                } else {
-                    let { cronograma, historial } = res.data;
-                    let tmp_historial = {};
-                    let tmp_cronograma = cronograma;
-                    tmp_cronograma.year = cronograma.año;
-                    await historial.data.filter(obj => tmp_historial = obj);
-                    // setting
-                    this.setState({ 
-                        cronograma: tmp_cronograma, 
-                        historial: tmp_historial, 
-                        total: historial.total, 
-                        last_page: historial.last_page 
-                    });
-                }
+                let { cronograma, historial } = res.data;
+                // setting
+                this.setState({ 
+                    cronograma: cronograma, 
+                    historial: historial.data, 
+                    total: historial.total, 
+                    last_page: historial.last_page 
+                });
             }).catch(err => console.log(err));
         } catch(ex) {
             console.log(ex);
@@ -301,12 +289,12 @@ export default class Info extends Component {
                 isClose={this.close}
                 disabled={this.state.edit || this.state.block}
                 md="12"
-                titulo={`INFORMACIÓN DE "${historial && historial.work ? historial.work.nombre_completo : 'NO HAY TRABAJADOR DISPONIBLE'}"`}
+                titulo={`INFORMACIÓN DE "${historial && historial.person ? historial.person.fullname : 'NO HAY TRABAJADOR DISPONIBLE'}"`}
             >
                     <Card.Body style={{ height: "85%", overflowY: "auto" }}>
                         <Form loading={loading}>
                             <Row>
-                                <div className="col-md-3">
+                                <div className="col-md-4">
                                     <Form.Field> 
                                         <input type="search" 
                                             className={`${this.state.like ? 'border-dark text-dark' : ''}`}
@@ -314,12 +302,12 @@ export default class Info extends Component {
                                             value={this.state.like}
                                             onChange={this.handleInput}
                                             name="like"
-                                            placeholder="Buscar por Nombre Completo o N° de documento"
+                                            placeholder="Buscar por Apellidos y Nombres"
                                         />  
                                     </Form.Field>
                                 </div>
 
-                                <div className="col-md-2 mb-1">
+                                <div className="col-md-3 mb-1">
                                     <Select placeholder='Select. Cargo' 
                                         options={parseOptions(cargos, ['sel-car', '', 'Select. Cargo'], ['id', 'id', 'descripcion'])} 
                                         disabled={loading || this.state.edit || this.state.block}
@@ -327,25 +315,17 @@ export default class Info extends Component {
                                         name="cargo_id"
                                         onChange={this.handleSelect}
                                         wrapSelection={false}
+                                        fluid
                                     />
                                 </div>
                                 
                                 <div className="col-md-2 mb-1">
                                     <Select placeholder='Select. Categoría' 
+                                        fluid
                                         options={parseOptions(type_categorias, ['sel-cat', '', 'Select. Categoría'], ['id', 'id', 'descripcion'])}
                                         disabled={loading || this.state.edit || this.state.block}
                                         value={type_categoria_id}
                                         name="type_categoria_id"
-                                        onChange={this.handleSelect}
-                                    />
-                                </div>
-                                
-                                <div className="col-md-2 mb-1">
-                                    <Select placeholder='Select. AFP' 
-                                        options={parseOptions(afps, ['sel-afp', '', 'Select. AFP'], ['id', 'id', 'nombre'])} 
-                                        disabled={loading || this.state.edit || this.state.block}
-                                        value={afp_id}
-                                        name="afp_id"
                                         onChange={this.handleSelect}
                                     />
                                 </div>
@@ -451,7 +431,7 @@ export default class Info extends Component {
                                                 <Form.Field>
                                                     <input type="number"  
                                                         placeholder="Año"
-                                                        defaultValue={cronograma.year}
+                                                        value={cronograma.year}
                                                         disabled={true}
                                                     />
                                                 </Form.Field>
@@ -461,7 +441,7 @@ export default class Info extends Component {
                                                 <Form.Field>
                                                     <input type="number" 
                                                         placeholder="Mes"
-                                                        defaultValue={cronograma.mes}
+                                                        value={cronograma.mes}
                                                         disabled={true}
                                                     />
                                                 </Form.Field>

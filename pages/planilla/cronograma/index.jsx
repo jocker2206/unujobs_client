@@ -10,6 +10,9 @@ import { AUTH, AUTHENTICATE } from '../../../services/auth';
 import { Form, Button, Icon } from 'semantic-ui-react';
 import { BtnFloat } from '../../../components/Utils';
 import Show from '../../../components/show';
+import SendEmail from '../../../components/cronograma/sendEmail';
+import Add from '../../../components/cronograma/add';
+
 
 export default class Cronograma extends Component {
 
@@ -85,7 +88,7 @@ export default class Cronograma extends Component {
                                 type: "text",
                                 children: [
                                     {
-                                        key: "numero",
+                                        key: "adicional",
                                         type: "icon",
                                         prefix: "Adicional"
                                     }
@@ -96,7 +99,7 @@ export default class Cronograma extends Component {
                             }, {
                                 key: "estado",
                                 type: "switch",
-                                is_true: "Abierta",
+                                is_true: "En curso",
                                 is_false: "Cerrada"
                             }
                         ]
@@ -105,20 +108,79 @@ export default class Cronograma extends Component {
                         [
                             {
                                 id: 1,
-                                key: "info",
-                                icon: "fas fa-info"
-                            }, {
-                                id: 1,
                                 key: "edit",
-                                icon: "fas fa-pencil-alt"
-                            }, {
+                                icon: "fas fa-pencil-alt",
+                                title: "Editar cronograma",
+                                rules: {
+                                    key: "estado",
+                                    value: 1
+                                }
+                            }, 
+                            {
+                                id: 1,
+                                key: "info",
+                                icon: "fas fa-info",
+                                title: "Visualizar cronograma detalladamente",
+                                rules: {
+                                    key: "estado",
+                                    value: 1
+                                }
+                            }, 
+                            {
+                                id: 1,
+                                key: "info",
+                                icon: "fas fa-info",
+                                title: "Visualizar cronograma detalladamente",
+                                rules: {
+                                    key: "estado",
+                                    value: 0
+                                }
+                            },
+                            {
                                 id: 1,
                                 key: "add",
-                                icon: "fas fa-user-plus"
-                            }, {
+                                icon: "fas fa-user-plus",
+                                title: "Agregar trabajadores al cronograma",
+                                rules: {
+                                    key: "estado",
+                                    value: 1
+                                }
+                            }, 
+                            {
+                                id: 1,
+                                key: "open",
+                                icon: "fas fa-lock-open",
+                                title: "Abrir cronograma",
+                                rules: {
+                                    key: "estado",
+                                    value: 0
+                                }
+                            }, 
+                            {
+                                id: 1,
+                                key: "close",
+                                icon: "fas fa-lock",
+                                title: "Cerrar cronograma",
+                                rules: {
+                                    key: "estado",
+                                    value: 1
+                                }
+                            }, 
+                            {
+                                id: 1,
+                                key: "send_email",
+                                icon: "fas fa-paper-plane",
+                                title: "Enviar correo",
+                                rules: {
+                                    key: "estado",
+                                    value: 0
+                                }
+                            }, 
+                            {
                                 id: 1,
                                 key: "report",
-                                icon: "fas fa-file-alt"
+                                icon: "fas fa-file-alt",
+                                title: "Reportes"
                             }
                         ]
                     }
@@ -166,24 +228,40 @@ export default class Cronograma extends Component {
                     </Form>
                 </Datatable>
                 {/* componentes de la ventana  */}
-                <Info show={query.info}
-                    query={query}
-                    pathname={pathname}
-                    close={(e) => {
-                        query.info = "";
-                        Router.push({pathname, query});
-                    }}
-                />
+                <Show condicion={query.info}>
+                    <Info show={true}
+                        query={query}
+                        pathname={pathname}
+                        close={(e) => {
+                            query.info = "";
+                            Router.push({pathname, query});
+                        }}
+                    />
+                </Show>
                 {/* create cronograma */}
-                <Create show={query.create}
-                    isClose={(e) => Router.push({ pathname, query: { create: null }})}
-                />
+                <Show condicion={query.create}>
+                    <Create show={true}
+                        isClose={(e) => Router.push({ pathname, query: { create: "" }})}
+                    />
+                </Show>
                 {/* reportes */}
                 <Show condicion={query.report}>
                     <Reports show={true}
                         query={query}
                         pathname={pathname}
                         isClose={(e) => Router.push({ pathname, query: { report: "" }})}
+                    />
+                </Show>
+                {/* enviar email */}
+                <Show condicion={query.send_email}>
+                    <SendEmail query={query}
+                        isClose={(e) => Router.push({ pathname, query: { send_email: "" } })}
+                    />
+                </Show>
+                {/* add infos */}
+                <Show condicion={query.add}>
+                    <Add query={query}
+                        isClose={(e) => Router.push({ pathname, query: { add: "" } })}
                     />
                 </Show>
                 {/* event create cronograma */}

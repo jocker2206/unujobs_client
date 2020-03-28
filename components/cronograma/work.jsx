@@ -4,6 +4,7 @@ import { Form, Button, Select, Message } from 'semantic-ui-react';
 import { parseOptions } from '../../services/utils';
 import Show from '../show';
 import Swal from 'sweetalert2';
+import moment from 'moment';
 
 
 export default class Work extends Component {
@@ -33,7 +34,7 @@ export default class Work extends Component {
     setting = async (nextProps) => {
         await this.setState({ 
             history: nextProps.historial ? nextProps.historial : {}, 
-            work: nextProps.historial.work ? nextProps.historial.work : {} 
+            work: nextProps.historial.person ? nextProps.historial.person : {} 
         });
     }
 
@@ -87,26 +88,26 @@ export default class Work extends Component {
                             <Form.Field>
                                 <b>Apellido Paterno</b>
                                 <input type="text" 
-                                    name="ape_paterno"
-                                    defaultValue={work.ape_paterno}
+                                    name="ape_pat"
+                                    defaultValue={work.ape_pat}
                                     disabled={true}
                                 />
                             </Form.Field>
 
                             <Form.Field>
-                                <b>Fecha de Nacimiento</b>
-                                <input type="date" 
-                                    name="ape_paterno"
-                                    defaultValue={work.fecha_de_nacimiento}
+                                <b>Tipo Documento</b>
+                                <input type="text" 
+                                    name="document_number"
+                                    defaultValue={work.document_number}
                                     disabled={true}
                                 />
                             </Form.Field>
 
                             <Form.Field>
                                 <b>Ubigeo</b>
-                                <select name="ubigeo_id"
+                                <select name="badge_id"
                                     disabled={!this.props.edit}
-                                    value={work.ubigeo_id}
+                                    value={work.badge_id}
                                     onChange={this.handleInput}
                                 >
                                     <option value="">Select. Ubigeo</option>
@@ -119,24 +120,86 @@ export default class Work extends Component {
                             </Form.Field>
 
                             <Form.Field>
-                                <b>Sincronización de datos con RENIEC</b>
+                                <b>Sincronización de datos de RENIEC</b>
                                 <Button 
                                     basic
                                     fluid
                                     color="olive"
                                     disabled={!this.props.edit}
                                 >
-                                    <i className="fas fa-sync"></i> Sincronizar datos con RENIEC
+                                    <i className="fas fa-sync"></i> Sincronizar RENIEC
                                 </Button>
                             </Form.Field>
                         </div>
+
                         <div className="col-md-3">
                             <Form.Field>
                                 <b>Apellido Materno</b>
                                 <input type="text" 
-                                    name="ape_materno"
-                                    defaultValue={work.ape_materno}
+                                    name="ape_mat"
+                                    defaultValue={work.ape_mat}
                                     disabled={true}
+                                />
+                            </Form.Field>
+
+                            <Form.Field>
+                                <b>N° Documento</b>
+                                <input type="text" 
+                                    name="document_number"
+                                    defaultValue={work.document_number}
+                                    disabled={true}
+                                />
+                            </Form.Field>
+
+                            <Form.Field>
+                                <b>Dirección</b>
+                                <input type="text" 
+                                    name="address"
+                                    value={work.address ? work.address : ''}
+                                    disabled={!this.props.edit}
+                                    onChange={this.handleInput}
+                                />
+                            </Form.Field>          
+                        </div>
+
+                        <div className="col-md-3">
+                            <Form.Field>
+                                <b>Nombres</b>
+                                <input type="text" 
+                                    name="name"
+                                    defaultValue={work.name}
+                                    disabled={true}
+                                />
+                            </Form.Field>
+
+                            <Form.Field>
+                                <b>Fecha de Nacimiento</b>
+                                <input type="date" 
+                                    name="date_of_birth"
+                                    defaultValue={moment.utc(work.date_of_birth).format('YYYY-MM-DD')}
+                                    disabled={true}
+                                />
+                            </Form.Field>
+
+                            <Form.Field>
+                                <b>Correo Electrónico</b>
+                                <input type="text" 
+                                    name="email_contact"
+                                    value={work.email_contact ? work.email_contact : ''}
+                                    disabled={!this.props.edit}
+                                    onChange={this.handleInput}
+                                />
+                            </Form.Field> 
+                        </div>
+
+                        <div className="col-md-3">
+                            <Form.Field>
+                                <b>Profesión Abrev.</b>
+                                <input type="text"
+                                    name="profession"
+                                    value={work.profession ? work.profession : ''}
+                                    disabled={!this.props.edit}
+                                    onChange={this.handleInput}
                                 />
                             </Form.Field>
 
@@ -149,8 +212,8 @@ export default class Work extends Component {
                                         {key: "f", value: "F", text: "Femenino"},
                                         {key: "i", value: "I", text: "No Binario"}
                                     ]}
-                                    name="genero"
-                                    value={work.genero}
+                                    name="gender"
+                                    value={work.gender}
                                     onChange={this.handleSelect}
                                     disabled={!this.props.edit}
                                 />
@@ -164,59 +227,7 @@ export default class Work extends Component {
                                     disabled={!this.props.edit}
                                     onChange={this.handleInput}
                                 />
-                            </Form.Field>            
-                        </div>
-
-                        <div className="col-md-3">
-                            <Form.Field>
-                                <b>Nombres</b>
-                                <input type="text" 
-                                    name="nombres"
-                                    defaultValue={work.nombres}
-                                    disabled={true}
-                                />
-                            </Form.Field>
-
-                            <Form.Field>
-                                <b>Dirección</b>
-                                <input type="text" 
-                                    name="direccion"
-                                    value={work.direccion ? work.direccion : ''}
-                                    disabled={!this.props.edit}
-                                    onChange={this.handleInput}
-                                />
-                            </Form.Field>
-
-                            <Form.Field>
-                                <b>Correo Electrónico</b>
-                                <input type="text" 
-                                    name="email"
-                                    value={work.email ? work.email : ''}
-                                    disabled={!this.props.edit}
-                                    onChange={this.handleInput}
-                                />
-                            </Form.Field> 
-                        </div>
-
-                        <div className="col-md-3">
-                            <Form.Field>
-                                <b>N° Documento</b>
-                                <input type="text" 
-                                    name="numero_de_documento"
-                                    defaultValue={work.numero_de_documento}
-                                    disabled={true}
-                                />
-                            </Form.Field>
-
-                            <Form.Field>
-                                <b>Profesión Abrev.</b>
-                                <input type="text"
-                                    name="profesion"
-                                    value={work.profesion ? work.profesion : ''}
-                                    disabled={!this.props.edit}
-                                    onChange={this.handleInput}
-                                />
-                            </Form.Field>
+                            </Form.Field>  
                         </div>
                     </div>
                 </Show>

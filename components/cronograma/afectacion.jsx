@@ -30,17 +30,9 @@ export default class Afectacion extends Component {
     async componentDidMount() {
         await this.setting(this.props, this.state);
         await this.getAFPs();
-        this.getTypeAFP(this.state);
         this.getMetas();
-        this.getCargos(this.state);
+        this.getTypeCategorias(this.state);
         this.getDependencias();
-    }
-
-
-    componentWillUpdate(nextProps, nextState) {
-        if (nextState.history.afp_id != this.state.history.afp_id) {
-            this.getTypeAFP(nextState);
-        }
     }
 
     async componentWillReceiveProps(nextProps) {
@@ -69,18 +61,8 @@ export default class Afectacion extends Component {
 
     getAFPs = async () => {
         await unujobs.get(`afp`).then(res => this.setState({
-            afps: res.data ? res.data.data : []
+            afps: res.data ? res.data : []
         })).catch(err => console.log(err.message));
-    }
-
-    getTypeAFP = async (state) => {
-        let {afps, history} = state;
-        await afps.filter(obj => {
-            if (history.afp_id == obj.id) {
-                this.setState({type_afps: obj.type_afps });
-            }
-        });
-
     }
 
     handleInput = (e) => {
@@ -104,11 +86,11 @@ export default class Afectacion extends Component {
         .catch(err => console.log(err.message));
     }
 
-    getCargos = (state) => {
+    getTypeCategorias = (state) => {
         let {history} = state;
-        unujobs.get(`cronograma/${history.cronograma_id}/cargo`)
+        unujobs.get(`type_categoria/${history.type_categoria_id}`)
         .then(res => {
-            this.setState({ cargos: res.data ? res.data : [] });
+            this.setState({ cargos: res.data.cargos ? res.data.cargos : [] });
         }).catch(err => console.log(err.message));
     }
 
@@ -188,10 +170,10 @@ export default class Afectacion extends Component {
 
                 <div className="col-md-3">
                     <Form.Field>
-                        <b>AFP <b className="text-red">*</b></b>
+                        <b>Ley Social <b className="text-red">*</b></b>
                         <Show condicion={this.props.edit}>
                             <Select
-                                options={parseOptions(afps, ['sel-afp', '', 'Select. AFP'], ['id', 'id', 'nombre'])}
+                                options={parseOptions(afps, ['sel-afp', '', 'Select. AFP'], ['id', 'id', 'descripcion'])}
                                 placeholder="Select. AFP"
                                 value={history.afp_id}
                                 name="afp_id"
@@ -202,7 +184,7 @@ export default class Afectacion extends Component {
                         <Show condicion={!this.props.edit}>
                             <input type="text"
                                 disabled={true}
-                                defaultValue={history.afp && history.afp.nombre}
+                                defaultValue={history.afp ? `${history.afp.afp} - ${history.afp.type_afp}` : ''}
                             />
                         </Show>
                     </Form.Field>
@@ -232,7 +214,7 @@ export default class Afectacion extends Component {
                         <Show condicion={!this.props.edit}>
                             <input type="text" name="meta_id"
                                 disabled={true}
-                                defaultValue={`${history.meta && history.meta.metaID}.-${history.meta && history.meta.meta}`}
+                                value={`${history.meta ? history.meta.metaID : ''}.-${history.meta ? history.meta.meta : ''}`}
                             />
                         </Show>
                     </Form.Field>
@@ -245,29 +227,26 @@ export default class Afectacion extends Component {
                         />
                     </Form.Field>
 
+                    <Form.Field>
+                        <b>Tip. Cuenta</b>
+                        <input type="text"
+                            defaultValue="B NACIÓN"
+                            disabled={true}
+                        />
+                    </Form.Field>
+
                 </div>
 
                 <div className="col-md-3">
                     <Form.Field>
-                        <b>Tipo de AFP</b>
-                        <Show condicion={this.props.edit}>
-                            <Select
-                                options={parseOptions(type_afps, ['sel-tipo-afp', '', 'Select. Tip. AFP'], ['id', 'id', 'descripcion'])}
-                                placeholder="Select. Tip. AFP"
-                                value={history.type_afp_id ? history.type_afp_id : ''}
-                                name="type_afp_id"
-                                onChange={this.handleSelect}
-                            />
-                        </Show>
-                        <Show condicion={!this.props.edit}>
-                            <input type="text"
-                                placeholder="Tip. AFP"
-                                disabled={true}
-                                name="type_afp_id"
-                                defaultValue={history.type_afp ? history.type_afp.descripcion : ''}
-                                onChange={this.handleSelect}
-                            />
-                        </Show>
+                        <b>N° CUSSP</b>
+                        <input type="text" 
+                            name="numero_de_cussp"  
+                            min="8"
+                            value={history.numero_de_cussp ? history.numero_de_cussp : ''}
+                            onChange={this.handleInput}
+                            disabled={!this.props.edit}
+                        />
                     </Form.Field>
 
                     <Form.Field>
@@ -278,6 +257,26 @@ export default class Afectacion extends Component {
                             onChange={this.handleInput}
                             disabled={true}
                         />
+                    </Form.Field>
+
+                    <Form.Field>
+                        <b>Cargo <b className="text-red">*</b></b>
+                        <Show condicion={this.props.edit}>
+                            <Select
+                                options={parseOptions(cargos, ['sel-cargo', '', 'Select. Cargo'], ['id', 'id', 'descripcion'])}
+                                placeholder="Select. Cargo"
+                                value={history.cargo_id}
+                                name="cargo_id"
+                                onChange={this.handleSelect}
+                                error={errors.cargo_id && errors.cargo_id[0]}
+                            />
+                        </Show>
+                        <Show condicion={!this.props.edit}>
+                            <input type="text" 
+                                defaultValue={history.cargo && history.cargo.descripcion}
+                                disabled={true}
+                            />
+                        </Show>
                     </Form.Field>
 
                     <Form.Field>
@@ -301,44 +300,20 @@ export default class Afectacion extends Component {
                     </Form.Field>
 
                     <Form.Field>
-                        <b>Cargo <b className="text-red">*</b></b>
-                        <Show condicion={this.props.edit}>
-                            <Select
-                                options={parseOptions(cargos, ['sel-cargo', '', 'Select. Cargo'], ['id', 'id', 'descripcion'])}
-                                placeholder="Select. Cargo"
-                                value={history.cargo_id}
-                                name="cargo_id"
-                                onChange={this.handleSelect}
-                                error={errors.cargo_id && errors.cargo_id[0]}
-                            />
-                        </Show>
-                        <Show condicion={!this.props.edit}>
-                            <input type="text" 
-                                defaultValue={history.cargo && history.cargo.descripcion}
-                                disabled={true}
-                            />
-                        </Show>
+                        <b>N° Cuenta</b>
+                        <input type="text"
+                            defaultValue={history.numero_de_cuenta ? history.numero_de_cuenta : ''}
+                            disabled={!this.props.edit}
+                        />
                     </Form.Field>
-
                 </div>
 
                 <div className="col-md-3">
                     <Form.Field>
-                        <b>N° CUSSP</b>
-                        <input type="text" 
-                            name="numero_de_cussp"  
-                            min="8"
-                            value={history.numero_de_cussp ? history.numero_de_cussp : ''}
-                            onChange={this.handleInput}
-                            disabled={!this.props.edit}
-                        />
-                    </Form.Field>
-
-                    <Form.Field>
-                        <b>N° Autogenerado</b>
-                        <input type="text" 
-                            name="numero_de_essalud"
-                            value={history.numero_de_essalud ? history.numero_de_essalud : ''}
+                        <b>Fecha de Afiliación</b>
+                        <input type="date" 
+                            name="fecha_de_afiliacion"
+                            value={history.fecha_de_afiliacion ? history.fecha_de_afiliacion : ''}
                             onChange={this.handleInput}
                             disabled={!this.props.edit}
                         />
@@ -355,21 +330,37 @@ export default class Afectacion extends Component {
                     />
 
                     <Form.Field>
-                        <b>Tipo Categoría</b>
-                        <input type="text"
-                            disabled={true}
-                            name="type_categoria_id"
-                            defaultValue={history.type_categoria && history.type_categoria.descripcion}
+                        <b>Ext. Presupuestal</b>
+                        <Select
+                            options={parseOptions(cargos, ['sel-cargo', '', 'Select. Cargo'], ['id', 'id', 'ext_pptto'])}
+                            placeholder="Select. Cargo"
+                            value={history.cargo_id}
+                            disabled
+                        />
+                    </Form.Field>
+
+                    <Form.Field>
+                        <b>Prima Seguros</b>
+                        <Select
+                            options={[
+                                {key: "n", value: 0, text: "No Afecto"},
+                                {key: "a", value: 1, text: "Afecto"}
+                            ]}
+                            placeholder="Select. Prima Seguro"
+                            value={history.prima_seguro & history.prima_seguro}
+                            name="prima_seguro"
+                            onChange={this.handleSelect}
+                            disabled={!this.props.edit}
                         />
                     </Form.Field>
                 </div>
 
                 <div className="col-md-3">
                     <Form.Field>
-                        <b>Fecha de Afiliación</b>
-                        <input type="date" 
-                            name="fecha_de_afiliacion"
-                            value={history.fecha_de_afiliacion ? history.fecha_de_afiliacion : ''}
+                        <b>N° Autogenerado</b>
+                        <input type="text" 
+                            name="numero_de_essalud"
+                            value={history.numero_de_essalud ? history.numero_de_essalud : ''}
                             onChange={this.handleInput}
                             disabled={!this.props.edit}
                         />
@@ -386,15 +377,6 @@ export default class Afectacion extends Component {
                     </Form.Field>
 
                     <Form.Field>
-                        <b>Tipo de ingreso</b>
-                        <input
-                            placeholder="Tipo de Ingreso"
-                            defaultValue={info.tipo_ingreso}
-                            disabled={true}
-                        />
-                    </Form.Field>
-
-                    <Form.Field>
                         <b>P.A.P</b>
                         <Select
                             options={storage.pap}
@@ -403,6 +385,15 @@ export default class Afectacion extends Component {
                             name="pap"
                             onChange={this.handleSelect}
                             disabled={!this.props.edit}
+                        />
+                    </Form.Field>
+
+                    <Form.Field>
+                        <b>Tipo Categoría</b>
+                        <input type="text"
+                            disabled={true}
+                            name="type_categoria_id"
+                            defaultValue={history.type_categoria && history.type_categoria.descripcion}
                         />
                     </Form.Field>
                 </div>
@@ -424,32 +415,6 @@ export default class Afectacion extends Component {
                         />
                     </Form.Field>
                 </div>
-
-                <div className="col-md-3 mt-2">
-                    <Form.Field>
-                        <b>Ext. Presupuestal</b>
-                        <input type="text" 
-                            defaultValue={history.cargo && history.cargo.ext_pptto}
-                            disabled={true}
-                        />
-                    </Form.Field>
-
-                    <Form.Field>
-                        <b>Prima Seguros</b>
-                        <Select
-                            options={[
-                                {key: "n", value: 0, text: "No Afecto"},
-                                {key: "a", value: 1, text: "Afecto"}
-                            ]}
-                            placeholder="Select. Prima Seguro"
-                            value={history.prima_seguro & history.prima_seguro}
-                            name="prima_seguro"
-                            onChange={this.handleSelect}
-                            disabled={!this.props.edit}
-                        />
-                    </Form.Field>
-                </div>
-
 
                 {/* Render tools */}
                 <ConsultaIframe 
