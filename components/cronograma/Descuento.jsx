@@ -11,7 +11,7 @@ export default class Descuento extends Component
     state = {
         descuentos: [],
         payload: [],
-        loader: true,
+        loader: false,
         total_bruto: 0,
         total_desct: 0,
         base: 0,
@@ -34,20 +34,13 @@ export default class Descuento extends Component
     }
 
     getDescuentos = async (props) => {
-        this.setState({ loader: true });
-        let { historial } = props;
-        await unujobs.get(`historial/${historial.id}/descuento`)
-        .then(res => {
-            let { descuentos, total_bruto, total_desct, total_neto, base } = res.data;
-            this.setState({ 
-                descuentos: descuentos ? descuentos : [],
-                total_bruto,
-                total_desct,
-                total_neto,
-                base
-            });
-        }).catch(err => console.log(err.message));
-        this.setState({ loader: false });
+        this.setState({ 
+            descuentos: props.data,
+            total_bruto: props.historial.total_bruto,
+            total_desct: props.historial.total_desct,
+            total_neto: props.historial.total_neto,
+            base: props.historial.base
+        });
     }
 
     handleMonto = (id, monto, index) => {
@@ -115,12 +108,12 @@ export default class Descuento extends Component
                     <div  key={`descuento-${obj.id}`}
                          className="col-md-3 mb-1"
                     >
-                        <span className="text-danger">
-                            {obj.type_descuento && obj.type_descuento.key}
+                        <span className={obj.monto > 0 ? 'text-red' : ''}>
+                            {obj.key}
                         </span>
                             .-
-                        <span className="text-primary">
-                            {obj.type_descuento && obj.type_descuento.descripcion}
+                        <span className={obj.monto > 0 ? 'text-primary' : ''}>
+                            {obj.descripcion}
                         </span>
                         <Form.Field>
                             <input type="number"

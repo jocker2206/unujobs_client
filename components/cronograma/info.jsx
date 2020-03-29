@@ -33,23 +33,13 @@ export default class Info extends Component {
             historial: {},
             cargo_id: "",
             type_categoria_id: "",
-            afp_id: "",
             planillas: [],
-            afps: [],
             cargos: [],
             type_categorias: [],
             bancos: [],
             send: false,
-            exports: {
-                click: 0,
-                loading: false,
-                headers: [],
-                content: []
-            },
             block: false
         };
-
-        this.close = this.close.bind(this);
     }
 
     async componentDidMount() {
@@ -62,7 +52,6 @@ export default class Info extends Component {
         // obtener configuración basica
         this.getBancos();
         this.getPlanillas();
-        this.getAFPs();
         this.getUbigeo();
     }
 
@@ -83,11 +72,6 @@ export default class Info extends Component {
         this.setState({ loading: false });
     }
 
-    getAFPs = () => {
-        unujobs.get(`cronograma/${this.state.cronograma_id}/afp`)
-        .then(res => this.setState({ afps: res.data }))
-        .catch(err => console.log(err.message));
-    }
 
     getBancos = () => {
         unujobs.get(`banco`)
@@ -119,13 +103,7 @@ export default class Info extends Component {
         }
     }
 
-    getExport = async () => {
-        let newExport = Object.assign({}, this.state.exports);
-        newExport.click = 1;
-        newExport.loading = true;
-        await this.setState({ exports: newExport });
-        await this.readCronograma();
-    }
+
 
     clearSearch = async () => {
         await this.setState({ 
@@ -146,27 +124,28 @@ export default class Info extends Component {
         this.setState({ loading: true });
         try {
             let { query } = props;
-            let { page, cargo_id, type_categoria_id, afp_id, like, exports } = state;
+            let { page, cargo_id, type_categoria_id, afp_id, like } = state;
             let id = query.info ? atob(query.info) : "";
-            let params = `page=${page}&cargo_id=${cargo_id}&type_categoria_id=${type_categoria_id}&afp_id=${afp_id}&like=${like}&export=${exports.click}`;
+            let params = `page=${page}&cargo_id=${cargo_id}&type_categoria_id=${type_categoria_id}&afp_id=${afp_id}&like=${like}`;
             await unujobs.get(`cronograma/${id}?${params}`)
             .then(async res => {
-                let { cronograma, historial } = res.data;
+                let { cronograma, historial, remuneraciones, descuentos, aportaciones } = res.data;
                 // setting
                 this.setState({ 
                     cronograma: cronograma, 
                     historial: historial.data, 
                     total: historial.total, 
-                    last_page: historial.last_page 
+                    last_page: historial.last_page,
+                    remuneraciones,
+                    descuentos,
+                    aportaciones 
                 });
             }).catch(err => console.log(err));
         } catch(ex) {
             console.log(ex);
         }
 
-        let newExport = Object.assign({}, this.state.exports);
-        newExport.loading = false;
-        this.setState({ loading: false, exports: newExport });
+        this.setState({ loading: false });
     }
 
     sendEmail = async () => {
@@ -228,24 +207,6 @@ export default class Info extends Component {
         }
     }
 
-    close(e) {
-        if (typeof this.props.close == 'function') this.props.close(e);
-        this.setState({ 
-            cargo_id: "", 
-            type_categoria_id: "", 
-            page: 1, 
-            afp_id: "",
-            like: "",
-            historial: {},
-            exports: {
-                click: 0,
-                loading: false,
-                headres: [],
-                content: [],
-            }
-        });  
-    }
-
     sentEnd = async () => {
         await this.setState({ loading: false, send: false });
     }
@@ -272,17 +233,14 @@ export default class Info extends Component {
 
         let { show } = this.props;
         let { 
-            cronograma, exports, 
+            cronograma, 
             historial, planillas, 
-            afps, cargos, 
+            cargos, 
             type_categorias, loading, 
-            cargo_id, type_categoria_id, 
-            afp_id 
+            cargo_id, type_categoria_id,
         } = this.state;
 
         
-
-        let filname = `${historial.planilla && historial.planilla.descripcion}_${cronograma.mes}_${cronograma.year}${cronograma.adicional ? `_adicional_${cronograma.numero}` : ''}`;
 
         return (
             <Modal show={show}
@@ -331,75 +289,24 @@ export default class Info extends Component {
                                 </div>
                                 
                                 <div className="col-md-2 mb-1">
-                                    <Show condicion={exports.click}>
-                                        <Button color="red"
-                                            disabled={exports.loading}
-                                            fluid
-                                            onClick={(e) => {
-                                                let newExport = Object.assign({}, exports);
-                                                newExport.click = 0;
-                                                this.setState({ exports: newExport, block: false });
-                                            }}
-                                        >
-                                            <Icon name="delete"/> Limpiar
-                                        </Button>
-                                    </Show>
-                                    <Show condicion={!exports.click}>
-                                        <Button color="black"
-                                            fluid
-                                            onClick={this.readCronograma}
-                                            title="Realizar Búsqueda"
-                                            disabled={loading || this.state.edit || this.state.block}
-                                        >
-                                            <Icon name="filter"/> Filtrar
-                                        </Button>
-                                    </Show>
+                                    <Button color="black"
+                                        fluid
+                                        onClick={this.readCronograma}
+                                        title="Realizar Búsqueda"
+                                        disabled={loading || this.state.edit || this.state.block}
+                                    >
+                                        <Icon name="filter"/> Filtrar
+                                    </Button>
                                 </div>
 
-                                <Show condicion={this.state.total && !this.state.block}>
-                                    <div className="col-md-1 mb-1">
-                                        <Show condicion={exports.click}>
-                                            <Show condicion={exports.loading}>
-                                                <Button color="green"
-                                                    basic
-                                                    loading={exports.loading}
-                                                    disabled={exports.loading}
-                                                    fluid
-                                                >
-                                                    <i className="fas fa-upload"></i>
-                                                </Button>
-                                            </Show>
-                                        </Show>
-                                        <Show condicion={!exports.click}>
-                                            <Button color="green"
-                                                basic
-                                                onClick={this.getExport}
-                                                title="Realizar exportación en CSV del Resultado."
-                                                disabled={loading || this.state.edit}
-                                                fluid
-                                            >
-                                                <i className="fas fa-file-excel"></i>
-                                            </Button>
-                                        </Show>
-                                    </div>
-                                </Show>
-
-                                <Show condicion={this.state.total && this.state.block && !exports.loading}>
-                                    <div className="col-md-1">
-                                        <CSVLink data={exports.content} 
-                                            headers={exports.headers} 
-                                            target="__blank"
-                                            className="ui green button fluid"
-                                            filename={`${filname}.xlsx`}
-                                        >
-                                            <i className="fas fa-download"></i>
-                                        </CSVLink>
-                                    </div>
-                                </Show>
+                        
                                 
                                 <Show condicion={this.state.total}>
                                     <TabCronograma
                                         historial={historial}
+                                        remuneraciones={this.state.remuneraciones}
+                                        descuentos={this.state.descuentos}
+                                        aportaciones={this.state.aportaciones}
                                         bancos={this.state.bancos}
                                         ubigeos={this.state.ubigeos}
                                         edit={this.state.edit}

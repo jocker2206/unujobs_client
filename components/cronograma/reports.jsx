@@ -212,7 +212,7 @@ export default class Reports extends Component {
         // verificar si se puede descargar
         if (type == 'download') link.download = obj.filename;
         // ejecutar
-        link.target = "__blank";
+        link.target = "_blank";
         link.href = path;
         link.click();
     }

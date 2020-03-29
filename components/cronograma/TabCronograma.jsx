@@ -83,6 +83,7 @@ export default class TabCronograma extends Component
                             ubigeos={ubigeos}
                             edit={this.props.edit}
                             historial={this.props.historial}
+                            data={this.props.remuneraciones}
                             send={send}
                             total={total}
                             fireSent={this.onSend}
@@ -100,6 +101,7 @@ export default class TabCronograma extends Component
                             ubigeos={ubigeos}
                             edit={this.props.edit}
                             historial={this.props.historial}
+                            data={this.props.descuentos}
                             send={send}
                             total={total}
                             fireSent={this.onSend}
@@ -168,6 +170,7 @@ export default class TabCronograma extends Component
                             ubigeos={ubigeos}
                             edit={this.props.edit}
                             historial={this.props.historial}
+                            data={this.props.aportaciones}
                             send={send}
                             total={total}
                             fireSent={this.onSend}

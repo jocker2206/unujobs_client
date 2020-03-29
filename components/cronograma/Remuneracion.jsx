@@ -10,7 +10,7 @@ export default class Remuneracion extends Component
 
     state = {
         remuneraciones: [],
-        loader: true,
+        loader: false,
         total_bruto: 0,
         total_desct: 0,
         base: 0,
@@ -34,20 +34,13 @@ export default class Remuneracion extends Component
     }
 
     getRemuneraciones = async (props) => {
-        this.setState({ loader: true });
-        let { historial } = props;
-        await unujobs.get(`historial/${historial.id}/remuneracion`)
-        .then(res => {
-            let { remuneraciones, total_bruto, total_desct, total_neto, base } = res.data;
-            this.setState({ 
-                remuneraciones: remuneraciones ? remuneraciones : [],
-                total_bruto,
-                total_desct,
-                total_neto,
-                base
-            });
-        }).catch(err => console.log(err.message));
-        this.setState({ loader: false });
+        this.setState({ 
+            remuneraciones: props.data,
+            total_bruto: props.historial.total_bruto,
+            total_desct: props.historial.total_desct,
+            base: props.historial.base,
+            total_neto: props.historial.total_neto
+        });
     }
 
     handleMonto = (id, monto, index) => {
@@ -115,12 +108,12 @@ export default class Remuneracion extends Component
                     <div  key={`remuneracion-${obj.id}`}
                          className="col-md-3 mb-1"
                     >
-                        <span className="text-danger">
-                            {obj.type_remuneracion && obj.type_remuneracion.key}
+                        <span className={obj.monto > 0 ? 'text-red' : ''}>
+                            {obj.key}
                         </span>
                             .-
-                        <span className="text-primary">
-                            {obj.type_remuneracion && obj.type_remuneracion.alias}
+                        <span className={obj.monto > 0 ? 'text-primary' : ''}>
+                            {obj.alias}
                         </span>
                         <Form.Field>
                             <input type="number"
