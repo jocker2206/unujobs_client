@@ -13,6 +13,6 @@ export const getAuth = (ctx) => {
         let Authorization = `Bearer ${NextCookies(ctx)['auth_token']}`;
         await authentication.get('me', { headers: { Authorization } })
         .then(res => dispatch({ type: authsActionsTypes.AUTH, payload: res.data }))
-        .catch(err => console.log(NextCookies(ctx)['auth_token']));
+        .catch(err => console.log(err.message));
     }
 }
