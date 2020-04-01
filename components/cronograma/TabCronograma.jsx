@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import Work from './work';
 import Afectacion from './afectacion';
-import Remuneracion from './remuneracion';
+import Remuneracion from './_remuneracion';
 import Descuento from './_descuento.jsx';
 import Aportacion from './aportacion';
 import { Tab } from 'semantic-ui-react'

@@ -316,8 +316,6 @@ export default class Info extends Component {
                                         <Icon name="filter"/> Filtrar
                                     </Button>
                                 </div>
-
-                        
                                 
                                 <Show condicion={this.state.total}>
                                     <TabCronograma

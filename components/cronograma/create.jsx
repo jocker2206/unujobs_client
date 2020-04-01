@@ -24,7 +24,7 @@ export default class Create extends Component
         type_id: 0,
         types: [
             { key: "tipo-0", value: 0, text: "Planilla nueva" },
-            { key: "tipo-1", value: 1, text: "Copiar del mes anterior" }
+            { key: "tipo-1", value: 1, text: "Copiar del mes anterior"}
         ]
     }
 
