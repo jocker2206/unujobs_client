@@ -1,5 +1,8 @@
 {
   "name": "unujobs_client",
+  "repository": {
+    "url": "https://github.com/jocker2206/unujobs_client"
+  },
   "version": "1.0.0",
   "description": "Sistema Finanaciero para Entidades Publicas",
   "main": "index.js",
@@ -10,7 +13,7 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
-  "author": "",
+  "author": "Hans Medina",
   "license": "ISC",
   "dependencies": {
     "alertifyjs": "^1.13.1",
