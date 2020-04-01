@@ -4,7 +4,6 @@ import App from 'next/app';
 import Sidebar from '../components/sidebar';
 import Navbar from '../components/navbar';
 import { Content, Body } from '../components/Utils';
-import Cookies from 'js-cookie';
 import { AUTH } from '../services/auth';
 import { getAuth, authsActionsTypes } from '../storage/actions/authsActions';
 
