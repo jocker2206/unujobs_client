@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { unujobs } from '../../services/apis';
-import { Button, Form } from 'semantic-ui-react';
+import { Button, Form, Input } from 'semantic-ui-react';
 import Swal from 'sweetalert2';
 
 
@@ -10,12 +10,12 @@ export default class Descuento extends Component
 
     state = {
         descuentos: [],
-        payload: [],
         loader: false,
         total_bruto: 0,
         total_desct: 0,
         base: 0,
         total_neto: 0,
+        payload: []
     }
 
 
@@ -31,24 +31,34 @@ export default class Descuento extends Component
         if (nextProps.send && nextProps.send != this.props.send) {
             await this.updateDescuentos();
         }
+        // update al cancelar
+        if (!nextProps.edit && nextProps.edit != this.props.edit) {
+            await this.setState({ descuentos:  nextProps.data});
+        }
     }
 
     getDescuentos = async (props) => {
+        let datos = JSON.parse(JSON.stringify(props));
         this.setState({ 
-            descuentos: props.data,
-            total_bruto: props.historial.total_bruto,
-            total_desct: props.historial.total_desct,
-            total_neto: props.historial.total_neto,
-            base: props.historial.base
+            descuentos: datos.data,
+            total_bruto: datos.historial.total_bruto,
+            total_desct: datos.historial.total_desct,
+            base: datos.historial.base,
+            total_neto: datos.historial.total_neto
         });
     }
 
-    handleMonto = (id, monto, index) => {
-        let newPayload = this.state.payload;
-        newPayload[index] = { id, monto };
-        this.setState({ payload: newPayload });
+    handleMonto = (index, value, obj) => {
+        this.setState(state => {
+            state.payload[index] = { id: obj.id, monto: value };
+            let newArray = state.descuentos;
+            let newObj = Object.assign({}, obj);
+            newObj.monto = value;
+            newArray[index] = newObj; 
+            return { descuentos: newArray, payload: state.payload }
+        });
     }
-
+    
     updateDescuentos = async () => {
         const form = new FormData();
         form.append('_method', 'PUT');
@@ -57,15 +67,25 @@ export default class Descuento extends Component
         .then(async res => {
             let { success, message, body } = res.data;
             let icon = success ? 'success' : 'error';
-            await Swal.fire({ icon, text: message });
             if (success) {
-                let { total_bruto, total_desct, base, total_neto } = body;
-                this.setState({ total_bruto, total_desct, base, total_neto });
-                this.props.setEdit(false);
+                await this.props.updatingHistorial();
+                this.setState({
+                    total_bruto: body.total_bruto,
+                    total_desct: body.total_desct,
+                    total_neto: body.total_neto,
+                    base: body.base
+                });
+            } else {
+                this.props.setSend(false);
+                this.props.setLoading(false);
             }
+            await Swal.fire({ icon, text: message });
         })
-        .catch(err => console.log(err.message));
-        this.props.fireSent();
+        .catch(err => {
+            Swal.fire({ icon: 'error', text: err.message })
+            this.props.setSend(false);
+            this.props.setLoading(false);
+        });
     }
 
     render() {
@@ -74,7 +94,6 @@ export default class Descuento extends Component
  
         return (
             <Form className="row">
-
                 <div className="col-md-12">
                     <div className="row justify-content-center">
                         <b className="col-md-3">
@@ -105,7 +124,7 @@ export default class Descuento extends Component
                 </div>
 
                 {descuentos.map((obj, index) => 
-                    <div  key={`descuento-${obj.id}`}
+                    <div  key={`remuneracion-${obj.id}`}
                          className="col-md-3 mb-1"
                     >
                         <span className={obj.monto > 0 ? 'text-red' : ''}>
@@ -118,9 +137,9 @@ export default class Descuento extends Component
                         <Form.Field>
                             <input type="number"
                                 step="any" 
-                                defaultValue={obj.monto}
+                                value={obj.monto}
                                 disabled={!obj.edit ? true : !this.props.edit}
-                                onChange={({target}) => this.handleMonto(obj.id, target.value, index)}
+                                onChange={({target}) => this.handleMonto(index, target.value, obj)}
                                 min="0"
                             />
                         </Form.Field>

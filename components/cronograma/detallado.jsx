@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { unujobs } from '../../services/apis';
 import { Button, Form, Select, Icon, Grid } from 'semantic-ui-react';
 import { parseOptions } from '../../services/utils';
+import Swal from 'sweetalert2';
 
 
 export default class Remuneracion extends Component
@@ -33,6 +34,32 @@ export default class Remuneracion extends Component
 
     handleInput = ({ name, value }) => {
         this.setState({ [name]: value });
+    }
+
+    create = async () => {
+        this.setState({ loader: true });
+        let payload = {
+            historial_id: this.props.historial.id,
+            type_detalle_id: this.state.type_detalle_id,
+            monto: this.state.monto
+        };
+        // request
+        await unujobs.post('detalle', payload)
+        .then(async res => {
+            let { success, message } = res.data;
+            let icon = success ? 'success' : 'error';
+            Swal.fire({ icon, text: message });
+            if (success) {
+                await this.getDetalles(this.props);
+                await this.setState({ loader: false });
+                await this.props.updatingHistorial();
+                this.props.setEdit(false);
+            }
+        })
+        .catch(err => Swal.fire({ icon: 'error', text: err.message }));
+        this.setState({ loader: false });
+        this.props.setLoading(false);
+        this.props.setSend(false);
     }
 
     getDetalles = async (props) => {
@@ -91,7 +118,8 @@ export default class Remuneracion extends Component
 
                         <div className="col-xs">
                             <Button color="green"
-                                disabled={!type_detalle_id}    
+                                disabled={!type_detalle_id}
+                                onClick={this.create}    
                             >
                                 <Icon name="plus"/> Agregar
                             </Button>

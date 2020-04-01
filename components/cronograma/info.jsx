@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import Modal from '../modal';
 import { Card, Row } from 'react-bootstrap';
-import { unujobs } from '../../services/apis';
+import { unujobs, authentication } from '../../services/apis';
 import base64url from 'base64-url';
 import Swal from 'sweetalert2';
 import { CSVLink } from "react-csv";
@@ -38,7 +38,9 @@ export default class Info extends Component {
             type_categorias: [],
             bancos: [],
             send: false,
-            block: false
+            block: false,
+            cancel: false,
+            type_documents: []
         };
     }
 
@@ -50,6 +52,7 @@ export default class Info extends Component {
             this.getCronograma(this.props, this.state);
         }
         // obtener configuración basica
+        this.getDocumentType();
         this.getBancos();
         this.getPlanillas();
         this.getUbigeo();
@@ -60,6 +63,12 @@ export default class Info extends Component {
         if (nextState.cargo_id != "" && nextState.cargo_id != this.state.cargo_id) this.gettype_categorias(nextState);
         if (nextState.cargo_id == "" && nextState.cargo_id != this.state.cargo_id) this.setState({ type_categoria_id: "", type_categorias: [] });
         if (nextProps.show != this.props.show && nextProps.show && !Object.keys(nextState.historial).length) this.getCronograma(nextProps, nextState);
+    }
+
+    getDocumentType = async () => {
+        await authentication.get('get_document_type')
+        .then(res => this.setState({ type_documents: res.data }))
+        .catch(err => console.log(err.message));
     }
 
     getPlanillas = async () => {
@@ -207,16 +216,25 @@ export default class Info extends Component {
         }
     }
 
-    sentEnd = async () => {
-        await this.setState({ loading: false, send: false });
+    setLoading = async (value) => {
+        await this.setState({ loading : value })
     }
 
-    updatingHistorial = async (newHistorial) => {
-        await this.setState({ historial: newHistorial, edit: false });
+    setEdit = async (value) => {
+        await this.setState({ edit: value });
     }
 
-    setEdit = async (newEdit) => {
-        await this.setState({ edit: newEdit });
+    setSend = async (value) => {
+        await this.setState({ send: value });
+    }
+
+    setCancel = async (value) => {
+        await this.setState({ cancel: value })
+    }
+
+    updatingHistorial = async () => {
+        await this.getCronograma(this.props, this.state);
+        this.setState({ edit: false, block: false, send: false });
     }
 
     handleConfirm = async (e) => {
@@ -244,7 +262,7 @@ export default class Info extends Component {
 
         return (
             <Modal show={show}
-                isClose={this.close}
+                isClose={this.props.isClose}
                 disabled={this.state.edit || this.state.block}
                 md="12"
                 titulo={`INFORMACIÓN DE "${historial && historial.person ? historial.person.fullname : 'NO HAY TRABAJADOR DISPONIBLE'}"`}
@@ -303,6 +321,7 @@ export default class Info extends Component {
                                 
                                 <Show condicion={this.state.total}>
                                     <TabCronograma
+                                        type_documents={this.state.type_documents}
                                         historial={historial}
                                         remuneraciones={this.state.remuneraciones}
                                         descuentos={this.state.descuentos}
@@ -313,8 +332,9 @@ export default class Info extends Component {
                                         loading={this.state.loading}
                                         send={this.state.send}
                                         total={this.state.total}
-                                        sentEnd={this.sentEnd}
+                                        setSend={this.setSend}
                                         setEdit={this.setEdit}
+                                        setLoading={this.setLoading}
                                         updatingHistorial={this.updatingHistorial}
                                         menu={{ secondary: true, pointing: true }}
                                     />  

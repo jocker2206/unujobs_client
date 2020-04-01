@@ -4,6 +4,7 @@ import { Button, Form, Select, Icon, Checkbox } from 'semantic-ui-react';
 import { parseOptions } from '../../services/utils';
 import Show from '../show';
 import storage from '../../services/storage.json';
+import Swal from 'sweetalert2';
 
 
 export default class Obligacion extends Component
@@ -23,7 +24,9 @@ export default class Obligacion extends Component
             numero_de_cuenta: "",
             monto: "",
             porcentaje: "",
-            observacion: "",
+            observacion: "S/D",
+            fecha_de_inicio: "",
+            fecha_de_termino: "",
             is_porcentaje: 1
         }
     }
@@ -39,10 +42,58 @@ export default class Obligacion extends Component
         }
     }
 
+    create = async () => {
+        this.setState({ loader: true });
+        let form = Object.assign({}, this.state.form);
+        form.info_id = this.props.historial.info_id;
+        await unujobs.post('type_obligacion', form)
+        .then(async res => {
+            let { success, message } = res.data;
+            let icon = success ? 'success' : 'error';
+            await Swal.fire({ icon, text: message });
+            // is success
+            if (success) {
+                await unujobs.post(`cronograma/${this.props.historial.cronograma_id}/add_obligacion`)
+                .then(async res => {
+                    let { success, message } = res.data;
+                    let icon = success ? 'success' : 'error';
+                    await Swal.fire({ icon, text: message });
+                })
+                .catch(err => Swal.fire({ icon: 'error', text: err.message }));
+                await this.getObligaciones(this.props);
+                await this.props.updatingHistorial();
+            }
+        })
+        .catch(err => Swal.fire({ icon: 'error', text: err.message }));
+        this.setState({ loader: false });
+    }
+
+    getDatosReniec = async (dni) => {
+        this.setState({ loader: true });
+        await unujobs.get(`reniec/${dni}`)
+        .then(res => {
+            let { result, success } = res.data;
+            if (success) {
+                let data = {};
+                data.name = 'beneficiario';
+                data.value = `${result.paterno} ${result.materno} ${result.nombre}`;
+                this.handleInput(data);
+            } else {
+                this.handleInput({ name: "beneficiario", value: "No se encontró resultado" })
+            }
+        })
+        .catch(err => console.log(err.message));
+        this.setState({ loader: false });
+    }
+
     handleInput = ({ name, value }) => {
-        let newObject = Object.assign({}, this.form);
+        let newObject = Object.assign({}, this.state.form);
         newObject[name] = value;
         this.setState({ form: newObject});
+        if (this.state.form.tipo_documento == '01' &&  name == 'numero_de_documento' && value.length == 8) {
+            this.getDatosReniec(value);
+        }
+        // setting
     }
 
     handleInputUpdate = ({ name, value }, index = 0) => {
@@ -116,7 +167,8 @@ export default class Obligacion extends Component
                         <div className="col-md-2 mb-2">
                             <Button color="green"
                                 fluid
-                                disabled={!this.permisionAdd()}    
+                                disabled={!this.permisionAdd()}  
+                                onClick={this.create}  
                             >
                                 <Icon name="plus"/> Agregar
                             </Button>
@@ -134,6 +186,23 @@ export default class Obligacion extends Component
                             </Form.Field>
                         </div>
 
+                        <div className="col-md-2 mb-2">
+                            <Form.Field>
+                                <Select
+                                    fluid
+                                    placeholder="Select. Modo Descuento"
+                                    options={[
+                                        { key: "por", value: 1, text: "Desct. Porcentaje" },
+                                        { key: "mon", value: 0, text: "Desct. Monto" }
+                                    ]}
+                                    name="is_porcentaje"
+                                    value={form.is_porcentaje}
+                                    onChange={(e, obj) => this.handleInput(obj)}
+                                    disabled={!this.props.edit}
+                                />
+                            </Form.Field>
+                        </div>
+
                         <Show condicion={form.is_porcentaje}>
                             <div className="col-md-3 mb-2">
                                 <Form.Field>
@@ -142,6 +211,7 @@ export default class Obligacion extends Component
                                         name="porcentaje"
                                         value={form.porcentaje}
                                         step="any"
+                                        max="85"
                                         disabled={!this.props.edit}
                                         onChange={({ target }) => this.handleInput(target)}
                                     />
@@ -164,12 +234,13 @@ export default class Obligacion extends Component
                             </div>
                         </Show>
 
-                        <div className="col-md-4 mb-2">
+                        <div className="col-md-2 mb-2">
                             <Form.Field>
-                                <input type="text" 
-                                    placeholder="Observación"
-                                    name="observacion"
-                                    value={form.observacion}
+                                <input type="date" 
+                                    title="Fecha de inicio"
+                                    placeholder="Fecha de inicio"
+                                    name="fecha_de_inicio"
+                                    value={form.fecha_de_inicio}
                                     disabled={!this.props.edit}
                                     onChange={({ target }) => this.handleInput(target)}
                                 />
@@ -178,17 +249,13 @@ export default class Obligacion extends Component
 
                         <div className="col-md-2 mb-2">
                             <Form.Field>
-                                <Select
-                                    fluid
-                                    placeholder="Select. Modo Descuento"
-                                    options={[
-                                        { key: "por", value: 1, text: "Desct. Porcentaje" },
-                                        { key: "mon", value: 0, text: "Desct. Monto" }
-                                    ]}
-                                    name="is_porcentaje"
-                                    value={form.is_porcentaje}
-                                    onChange={(e, obj) => this.handleInput(obj)}
+                                <input type="date" 
+                                    title="Fecha de término"
+                                    placeholder="Fecha de término"
+                                    name="fecha_de_termino"
+                                    value={form.fecha_de_termino}
                                     disabled={!this.props.edit}
+                                    onChange={({ target }) => this.handleInput(target)}
                                 />
                             </Form.Field>
                         </div>
@@ -296,6 +363,7 @@ export default class Obligacion extends Component
                                         <label htmlFor="">Porcentaje</label>
                                         <input type="number" 
                                             value={obl.porcentaje}
+                                            disabled={!this.props.edit}
                                             step="any"
                                             name="porcentaje"
                                             onChange={({ target }) => this.handleInputUpdate(target, index)}

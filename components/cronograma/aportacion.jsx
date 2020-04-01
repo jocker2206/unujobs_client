@@ -13,13 +13,13 @@ export default class Remuneracion extends Component
         type_aportaciones: [],
         aportaciones: [],
         type_aportacion_id: "",
-        loader: true,
+        loader: false,
     }
 
 
     componentDidMount = async () => {
+        this.getAportaciones(this.props);
         await this.getTypeAportaciones();
-        await this.getAportaciones(this.props);
     }
 
     componentWillReceiveProps = async (nextProps) => {
@@ -33,13 +33,7 @@ export default class Remuneracion extends Component
     }
 
     getAportaciones = async (props) => {
-        await this.setState({ loader: true });
-        let { historial } = props;
-        await unujobs.get(`historial/${historial.id}/aportacion`)
-        .then(async res => {
-            await this.setState({ aportaciones: res.data ? res.data : [] });
-        }).catch(err => console.log(err.message));
-        await this.setState({ loader: false });
+        this.setState({ aportaciones: props.data });
     }
 
     getTypeAportaciones = async () => {
@@ -94,11 +88,11 @@ export default class Remuneracion extends Component
                          className="col-md-3 mb-1"
                     >
                         <span className="text-danger">
-                            {obj.type_aportacion && obj.type_aportacion.key}
+                            {obj.key}
                         </span>
                             .-
                         <span className="text-primary">
-                            {obj.type_aportacion && obj.type_aportacion.descripcion}
+                            {obj.descripcion}
                         </span>
                         <Form.Field>
                             <input type="number"

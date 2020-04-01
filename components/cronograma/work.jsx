@@ -27,7 +27,7 @@ export default class Work extends Component {
         }   
         // update send
         if (nextProps.send == true && nextProps.send != this.props.send) {
-            this.updateWork();
+            
         }
     }
 
@@ -50,23 +50,6 @@ export default class Work extends Component {
         let newWork = await Object.assign({}, this.state.work);
         newWork[name] = value;
         this.setState({ work: newWork });
-    }
-
-    updateWork = async () => {
-        this.setState({ error: "" });
-        let form = Object.assign({}, this.state.work);
-        form._method = 'PUT';
-        await unujobs.post(`work/${this.state.work.id}`, form)
-        .then(async res => {
-            let { success, message } = res.data;
-            let newHistorial = Object.assign({}, this.state.history);
-            newHistorial.work = this.state.work;
-            let icon = success ? 'success' : 'error';
-            await Swal.fire({ icon, text: message });
-            success ? await this.props.updatedHistorial(newHistorial) : null;
-        })
-        .catch(({ response }) => this.setState({ error: response.data.message }));
-        this.props.fireSent();
     }
 
     render() {
@@ -96,10 +79,10 @@ export default class Work extends Component {
 
                             <Form.Field>
                                 <b>Tipo Documento</b>
-                                <input type="text" 
-                                    name="document_number"
-                                    defaultValue={work.document_number}
-                                    disabled={true}
+                                <Select
+                                    options={this.props.type_documents}
+                                    value={work.document_type ? work.document_type : ''}
+                                    disabled
                                 />
                             </Form.Field>
 
@@ -215,7 +198,7 @@ export default class Work extends Component {
                                     name="gender"
                                     value={work.gender}
                                     onChange={this.handleSelect}
-                                    disabled={!this.props.edit}
+                                    disabled={true}
                                 />
                             </Form.Field>
 

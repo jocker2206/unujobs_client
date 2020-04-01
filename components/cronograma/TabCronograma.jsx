@@ -16,25 +16,9 @@ export default class TabCronograma extends Component
         super(props);
     }
 
-    onSend = (e) => {
-        if (typeof this.props.sentEnd == 'function') {
-            this.props.sentEnd();
-        }
-    }
-
-    updatedHistorial = async (newHistorial) => {
-        if (typeof this.props.updatingHistorial == 'function') {
-            await this.props.updatingHistorial(newHistorial);
-        }
-    }
-
-    setEdit = async (newEdit) => {
-        await this.props.setEdit(newEdit);
-    }
-
     render() {
 
-        let { loading, edit, send, total, ubigeos, bancos } = this.props;
+        let { loading, cancel, edit, send, total, ubigeos, bancos } = this.props;
 
         let styles = {
             border: '0px'
@@ -46,14 +30,15 @@ export default class TabCronograma extends Component
                 render: () => 
                     <Tab.Pane style={styles}>
                         <Work 
+                            type_documents={this.props.type_documents}
                             bancos={bancos}
                             ubigeos={ubigeos}
                             edit={this.props.edit}
                             historial={this.props.historial}
                             send={send}
+                            cancel={cancel}
                             total={total}
-                            fireSent={this.onSend}
-                            updatedHistorial={this.updatedHistorial}
+                            updatingHistorial={this.props.updatingHistorial}
                         />
                     </Tab.Pane> 
             },
@@ -67,9 +52,13 @@ export default class TabCronograma extends Component
                             edit={this.props.edit}
                             historial={this.props.historial}
                             send={send}
+                            cancel={cancel}
                             total={total}
-                            fireSent={this.onSend}
-                            updatedHistorial={this.updatedHistorial}
+                            setEdit={this.props.setEdit}
+                            setLoading={this.props.setLoading}
+                            setSend={this.props.setSend}
+                            setCancel={this.props.setCancel}
+                            updatingHistorial={this.props.updatingHistorial}
                         /> 
                     </Tab.Pane>
                 )
@@ -85,9 +74,13 @@ export default class TabCronograma extends Component
                             historial={this.props.historial}
                             data={this.props.remuneraciones}
                             send={send}
+                            cancel={cancel}
                             total={total}
-                            fireSent={this.onSend}
-                            setEdit={this.setEdit}
+                            setEdit={this.props.setEdit}
+                            setLoading={this.props.setLoading}
+                            setSend={this.props.setSend}
+                            setCancel={this.props.setCancel}
+                            updatingHistorial={this.props.updatingHistorial}
                         /> 
                     </Tab.Pane>
                 )
@@ -103,9 +96,12 @@ export default class TabCronograma extends Component
                             historial={this.props.historial}
                             data={this.props.descuentos}
                             send={send}
+                            cancel={cancel}
                             total={total}
-                            fireSent={this.onSend}
-                            setEdit={this.setEdit}
+                            setEdit={this.props.setEdit}
+                            setLoading={this.props.setLoading}
+                            setSend={this.props.setSend}
+                            updatingHistorial={this.props.updatingHistorial}
                         /> 
                     </Tab.Pane>
                 )
@@ -121,8 +117,10 @@ export default class TabCronograma extends Component
                             historial={this.props.historial}
                             send={send}
                             total={total}
-                            fireSent={this.onSend}
-                            updatedHistorial={this.updatedHistorial}
+                            setEdit={this.props.setEdit}
+                            setLoading={this.props.setLoading}
+                            setSend={this.props.setSend}
+                            updatingHistorial={this.props.updatingHistorial}
                         /> 
                     </Tab.Pane>
                 )
@@ -137,15 +135,18 @@ export default class TabCronograma extends Component
                             edit={this.props.edit}
                             historial={this.props.historial}
                             send={send}
+                            cancel={cancel}
                             total={total}
-                            fireSent={this.onSend}
-                            updatedHistorial={this.updatedHistorial}
+                            setEdit={this.props.setEdit}
+                            setLoading={this.props.setLoading}
+                            setSend={this.props.setSend}
+                            updatingHistorial={this.props.updatingHistorial}
                         /> 
                     </Tab.Pane>
                 )
             },
             {
-                menuItem: {key: 'sindicato', icon: 'users', content: 'Sindicatos', disabled: edit },
+                menuItem: {key: 'sindicato', icon: 'users', content: 'Sindicatos/Afiliación', disabled: edit },
                 render: () => (
                     <Tab.Pane style={styles}>
                         <Sindicato
@@ -154,9 +155,12 @@ export default class TabCronograma extends Component
                             edit={this.props.edit}
                             historial={this.props.historial}
                             send={send}
+                            cancel={cancel}
                             total={total}
-                            fireSent={this.onSend}
-                            updatedHistorial={this.updatedHistorial}
+                            setEdit={this.props.setEdit}
+                            setLoading={this.props.setLoading}
+                            setSend={this.props.setSend}
+                            updatingHistorial={this.props.updatingHistorial}
                         /> 
                     </Tab.Pane>
                 )
@@ -172,9 +176,12 @@ export default class TabCronograma extends Component
                             historial={this.props.historial}
                             data={this.props.aportaciones}
                             send={send}
+                            cancel={cancel}
                             total={total}
-                            fireSent={this.onSend}
-                            updatedHistorial={this.updatedHistorial}
+                            setEdit={this.props.setEdit}
+                            setLoading={this.props.setLoading}
+                            setSend={this.props.setSend}
+                            updatingHistorial={this.props.updatingHistorial}
                         /> 
                     </Tab.Pane>
                 )

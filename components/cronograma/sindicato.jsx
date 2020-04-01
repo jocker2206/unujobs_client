@@ -35,14 +35,14 @@ export default class Remuneracion extends Component
     getSindicatos = async (props) => {
         this.setState({ loader: true });
         let { historial } = props;
-        await unujobs.get(`historial/${historial.id}/sindicato`)
+        await unujobs.get(`historial/${historial.id}/type_sindicato`)
         .then(async res => await this.setState({ sindicatos: res.data ? res.data : [] }))
         .catch(err => console.log(err.message));
         this.setState({ loader: false });
     }
 
     getTypeSindicatos = async () => {
-        await unujobs.get('sindicato')
+        await unujobs.get('type_sindicato')
         .then(res => this.setState({ type_sindicatos: res.data }))
         .catch(err => console.log(err.message));
     }

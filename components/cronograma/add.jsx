@@ -52,7 +52,7 @@ export default class Add extends Component
     }
 
     handleInput = ({name, value}) => {
-        this.setState({ [name]: value })
+        this.setState({ [name] : value })
     }
 
     addPayload = async (obj, index) => {
@@ -94,7 +94,7 @@ export default class Add extends Component
         this.setState({ loading: true });
         let form = new FormData();
         form.append('info_id', this.state.index); 
-        await unujobs.post(`cronograma/${this.state.id}/add`, form)
+        await unujobs.post(`cronograma/${this.state.id}/add_all`, form)
         .then(async res => {
             let { success, message } = res.data;
             let icon = success ? 'success' : 'error';
@@ -104,10 +104,6 @@ export default class Add extends Component
         })
         .catch(err => console.log(err.message));
         this.setState({ loading: false, preparate: false });
-    }
-
-    continue = async () => {
-        await unujobs.post(`cronograma/{}`)
     }
 
     render() {
@@ -124,11 +120,14 @@ export default class Add extends Component
                         <div className="row">
                             <Show condicion={!this.state.preparate}>
                                 <div className="col-md-4">
-                                    <Input fluid placeholder="Buscar trabajador por apellidos y nombres"
-                                        name="query_search"
-                                        value={this.state.query_search}
-                                        onChange={({ target }) => this.handleInput(target)}
-                                    />
+                                    <Form.Field>
+                                        <input type="text" 
+                                            placeholder="Buscar trabajador por apellidos y nombres"
+                                            name="query_search"
+                                            value={this.state.query_search}
+                                            onChange={({ target }) => this.setState({ query_search: target.value })}
+                                        />
+                                    </Form.Field>
                                 </div>
 
                                 <div className="col-md-3">
@@ -157,17 +156,6 @@ export default class Add extends Component
                                         disabled={this.state.select_id == 0 ? false : this.state.select_id == 1 && this.state.index.length == 0 }
                                     >
                                         <i className="fas fa-check"></i> Preparar envio
-                                    </Button>
-                                </div>
-
-                                <div className="col-md-1">
-                                    <Button color="green" fluid
-                                        onClick={(e) => this.setState({ preparate: true })}
-                                        floated="right"
-                                        title="Continuar"
-                                        disabled={this.state.select_id == 0 ? false : this.state.select_id == 1 && this.state.index.length == 0 }
-                                    >
-                                        <i className="fas fa-check"></i>
                                     </Button>
                                 </div>
                             </Show>

@@ -30,6 +30,7 @@ export default class Reports extends Component {
             afp_id: "",
             cargos: [],
             cargo_id: "",
+            categorias: [],
             type_remuneraciones: [],
             type_remuneracion_id: "",
             type_descuentos: [],
@@ -73,16 +74,17 @@ export default class Reports extends Component {
         await this.setState({ cronograma_id: id, type_reports:  ReportType });
         await this.getCronograma(this.props, this.state);
         // obtener configuración basica
-        await this.setState({ loading_filters: true });
-        await this.getMetas();
-        await this.getBancos();
-        await this.getAFPs();
+        this.setState({ loading_filters: true });
+        this.getMetas();
+        this.getBancos();
+        this.getAFPs();
+        await this.getCategorias();
         await this.getCargos();
         await this.getTypeRemuneraciones();
-        await this.getTypeDescuentos();
-        await this.getTypeDetalles();
+        this.getTypeDescuentos();
+        this.getTypeDetalles();
         await this.getTypeAportacion();
-        await this.setState({ loading_filters: false });
+        this.setState({ loading_filters: false });
     }
 
     componentWillUpdate = (nextProps, nextState) => {
@@ -162,6 +164,14 @@ export default class Reports extends Component {
         .then(async res => {
             this.setState({ cargos: res.data });
         }).catch(err =>  console.log(err.message));
+    }
+
+    getCategorias = async () => {
+        this.setState({ loading_filters: true });
+        await unujobs.get(`cronograma/${this.state.cronograma_id}/type_categoria`)
+        .then(res => this.setState({ categorias: res.data }))
+        .catch(err => console.log(err.message));
+        this.setState({ loading_filters: false });
     }
 
     getTypeCategorias = async () => {
@@ -310,7 +320,7 @@ export default class Reports extends Component {
                 isClose={this.props.isClose}
                 disabled={this.state.loading || this.state.block}
                 md="11"
-                titulo={`REPORTES POR CRONOGRAMA`}
+                titulo={<span><i className="fas fa-file-alt"></i> REPORTES POR CRONOGRAMA: {this.state.cronograma_id}</span>}
             >
                     <Card.Body style={{ height: "85%", overflowY: "auto" }}>
                         <Form loading={loading}>

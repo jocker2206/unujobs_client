@@ -232,7 +232,7 @@ export default class Cronograma extends Component {
                     <Info show={true}
                         query={query}
                         pathname={pathname}
-                        close={(e) => {
+                        isClose={(e) => {
                             query.info = "";
                             Router.push({pathname, query});
                         }}
