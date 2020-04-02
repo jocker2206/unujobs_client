@@ -9,6 +9,7 @@ import { parseOptions } from '../../services/utils';
 import Show from '../../components/show';
 import TabCronograma from './TabCronograma';
 import { Form, Button, Input, Select, Icon } from 'semantic-ui-react';
+import Head from 'next/head';
 
 
 export default class Info extends Component {
@@ -261,12 +262,14 @@ export default class Info extends Component {
         
 
         return (
-            <Modal show={show}
-                isClose={this.props.isClose}
-                disabled={this.state.edit || this.state.block}
-                md="12"
-                titulo={`INFORMACIÓN DE "${historial && historial.person ? historial.person.fullname : 'NO HAY TRABAJADOR DISPONIBLE'}"`}
-            >
+            <React.Fragment>
+
+                <Modal show={show}
+                    isClose={this.props.isClose}
+                    disabled={this.state.edit || this.state.block}
+                    md="12"
+                    titulo={`INFORMACIÓN DE "${historial && historial.person ? historial.person.fullname : 'NO HAY TRABAJADOR DISPONIBLE'}"`}
+                >
                     <Card.Body style={{ height: "85%", overflowY: "auto" }}>
                         <Form loading={loading}>
                             <Row>
@@ -477,7 +480,8 @@ export default class Info extends Component {
                             </Form>
                         </Card.Body>
                     </Card.Footer>
-            </Modal>    
+                </Modal>    
+            </React.Fragment>
         )
         
     }

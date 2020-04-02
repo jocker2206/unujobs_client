@@ -5,6 +5,7 @@ import { authentication } from '../services/apis';
 import Cookies from 'js-cookie';
 import { connect } from 'react-redux';
 import initStore from '../storage/store';
+import { app } from '../env.json';
 
 
 class Login extends Component
@@ -65,16 +66,16 @@ class Login extends Component
             <div className="auth">
                 <header
                     id="auth-header"
-                    className="auth-header"
+                    className={`auth-header bg-${app.theme}`}
                     style={{ paddingTop: "3em" }}
                 >
     
-                    <img src="/img/logo-unu.png"
-                        alt="logo"
+                    <img src={app.logo}
+                        alt={app.descripcion}
                         style={{ width: "120px", borderRadius: "0.5em", padding: '0.5em', background: '#fff' }}
                     />
                     
-                    <h4>UNU - SRH</h4>
+                    <h4>{app.name}</h4>
 
                     <h1>
                         <span className="sr-only">Iniciar Sesión</span>
@@ -123,7 +124,7 @@ class Login extends Component
                     <div className="form-group">
                         <button
                             disabled={loading}
-                            className={`btn btn-lg btn-primary btn-block`}
+                            className={`btn btn-lg btn-primary btn-block btn-${app.theme}`}
                             type="submit"
                         >
                             {loading ? "Verificando...." : "Iniciar Sesión"}

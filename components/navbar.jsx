@@ -6,6 +6,7 @@ import Cookies from 'js-cookie';
 import Swal from 'sweetalert2';
 import { connect } from 'react-redux';
 import initStore from '../storage/store';
+import { app } from '../env.json';
 
 
 class Navbar extends Component {
@@ -65,7 +66,7 @@ class Navbar extends Component {
 
     return (
       <Fragment>
-        <header className="app-header app-header-dark">
+        <header className={`app-header app-header-dark bg-${app.theme}`}>
           <div className="top-bar">
             <div className="top-bar-brand">
               <a href="/">

@@ -6,6 +6,8 @@ import Navbar from '../components/navbar';
 import { Content, Body } from '../components/Utils';
 import { AUTH } from '../services/auth';
 import { getAuth, authsActionsTypes } from '../storage/actions/authsActions';
+import { app } from '../env.json';
+
 
 // config redux
 import { Provider } from 'react-redux';
@@ -34,15 +36,23 @@ class MyApp extends App {
     super(props);
   }
 
+  capitalize(word) {
+    if (word)  return "- " + word[0].toUpperCase() + word.slice(1);
+    return null;
+  }
+
   render() {
     const { Component, pageProps, store, auth_token } = this.props
+
+    let paths = typeof location == 'object' ? location.pathname.split('/') : [];
+    let titulo = paths[paths.length == 0 ? 0 : paths.length - 1];
 
     return  <Fragment>
       <Provider store={store}>
         <Head>
           <meta charSet="utf-8"></meta>
           <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"></meta>
-          <title>SIGA</title>
+          <title>{app.name} {this.capitalize(titulo)}</title>
           <link rel="shortcut icon" href="/img/logo-unu.png"></link>
           <meta name="theme-color" content="#3063A0"></meta>
           <link href="https://fonts.googleapis.com/css?family=Roboto:400,300,100,500,600,700,900" rel="stylesheet" type="text/css" />
@@ -79,7 +89,7 @@ class MyApp extends App {
                 <div className="gx-app-layout ant-layout ant-layout-has-sider">
                   <div className="ant-layout">
                     <Navbar/>
-                    <div className="gx-layout-content   ant-layout-content">
+                    <div className="gx-layout-content ant-layout-content">
                       <div className="gx-main-content-wrapper">
                       <Sidebar/>
                         <Content>

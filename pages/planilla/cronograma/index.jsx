@@ -12,6 +12,9 @@ import { BtnFloat } from '../../../components/Utils';
 import Show from '../../../components/show';
 import SendEmail from '../../../components/cronograma/sendEmail';
 import Add from '../../../components/cronograma/add';
+import Close from '../../../components/cronograma/close';
+import Open from '../../../components/cronograma/open';
+import Edit from '../../../components/cronograma/edit';
 
 
 export default class Cronograma extends Component {
@@ -44,6 +47,18 @@ export default class Cronograma extends Component {
         });
         // obtener cronogramas
         this.getCronogramas();
+    }
+
+    componentWillReceiveProps(nextProps) {
+        if (!nextProps.query.create && nextProps.query.create != this.props.query.create) {
+            this.getCronogramas();
+        } else if (!nextProps.query.open && nextProps.query.open != this.props.query.open) {
+            this.getCronogramas();
+        } else if (!nextProps.query.close && nextProps.query.close != this.props.query.close) {
+            this.getCronogramas();
+        } else if (!nextProps.query.edit && nextProps.query.edit != this.props.query.edit) {
+            this.getCronogramas();
+        } 
     }
 
     handleInput(e) {
@@ -262,6 +277,24 @@ export default class Cronograma extends Component {
                 <Show condicion={query.add}>
                     <Add query={query}
                         isClose={(e) => Router.push({ pathname, query: { add: "" } })}
+                    />
+                </Show>
+                {/* editar cronograma */}
+                <Show condicion={query.edit}>
+                    <Edit query={query}
+                        isClose={(e) => Router.push({ pathname, query: { edit: "" } })}
+                    />
+                </Show>
+                {/* cerrar planilla */}
+                <Show condicion={query.close}>
+                    <Close query={query}
+                        isClose={(e) => Router.push({ pathname, query: { close: "" } })}
+                    />
+                </Show>
+                {/* abrir planilla */}
+                <Show condicion={query.open}>
+                    <Open query={query}
+                        isClose={(e) => Router.push({ pathname, query: { open: "" } })}
                     />
                 </Show>
                 {/* event create cronograma */}
